@@ -618,7 +618,7 @@ nav {
     QS Quote Tool
   </div>
   <div class="nav-right">
-    <span class="nav-tag" id="user-tag">—</span>
+    <span class="nav-tag" id="user-tag">Loading...</span>
     <button class="btn-new" onclick="newQuote()">+ New Quote</button>
   </div>
 </nav>
@@ -781,22 +781,32 @@ const LOCATION_MULTIPLIERS = {
 window.onload = async () => {
   if (!userName) {
     showNameModal();
+    // Still load quotes in background
+    await loadQuotes();
   } else {
     document.getElementById('user-tag').textContent = userName;
+    await loadQuotes();
   }
-  await loadQuotes();
 };
 
 async function loadQuotes() {
   const listEl = document.getElementById('quote-list');
+  const tagEl = document.getElementById('user-tag');
   listEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px;">Loading...</div>';
+  // Update nav tag
+  if (userName) tagEl.textContent = userName;
+  else tagEl.textContent = 'Set name →';
   try {
     quotes = await sbFetch('quotes?order=created_at.desc');
     renderList();
     updateStats();
   } catch(e) {
-    listEl.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px;">Failed to load. Check Supabase key.</div>';
-    console.error(e);
+    listEl.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px;">⚠️ Could not connect to Supabase.</div>';
+    console.error('Supabase error:', e);
+    // Fall back to empty state so UI still works
+    quotes = [];
+    renderList();
+    updateStats();
   }
 }
 
@@ -807,24 +817,35 @@ function showNameModal() {
 
 function saveName() {
   const val = document.getElementById('name-input').value.trim();
-  if (!val) return;
+  if (!val) { 
+    document.getElementById('name-input').style.borderColor = '#dc2626';
+    return; 
+  }
   userName = val;
   localStorage.setItem('qs_username', val);
   document.getElementById('user-tag').textContent = val;
   document.getElementById('name-modal').classList.remove('show');
-  loadQuotes();
+  showToast('Welcome, ' + val + '!', 'success');
 }
 
 // ─── QUOTES ───
 async function saveQuoteToSupabase(q) {
-  // upsert into Supabase
   try {
-    await sbFetch('quotes', {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/quotes`, {
       method: 'POST',
-      prefer: 'return=minimal',
-      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+      },
       body: JSON.stringify(q),
     });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Save error:', err);
+      showToast('Save failed', 'error');
+    }
   } catch(e) {
     console.error('Save failed:', e);
     showToast('Save failed — check connection', 'error');
@@ -891,7 +912,15 @@ function updateQuote(field, value) {
 async function deleteQuote(id) {
   if (!confirm('Delete this quote?')) return;
   try {
-    await sbFetch(`quotes?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal', headers:{'Prefer':'return=minimal'} });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/quotes?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+    });
+    if (!res.ok) throw new Error('Delete failed');
     quotes = quotes.filter(q => q.id !== id);
     updateStats();
     renderList();
