@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QS Quote Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a1628;
+  --navy2: #122040;
+  --blue: #2563eb;
+  --blue-light: #3b82f6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --surface: #111827;
+  --surface2: #1a2540;
+  --surface3: #1f2d4a;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ─── NAV ─── */
+nav {
+  background: var(--navy2);
+  border-bottom: 1px solid var(--border);
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo-icon {
+  width: 30px; height: 30px;
+  background: var(--blue);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nav-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+}
+.btn-new {
+  background: var(--blue);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-new:hover { background: var(--blue-light); }
+
+/* ─── LAYOUT ─── */
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: calc(100vh - 58px);
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  background: var(--navy2);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  overflow-y: auto;
+  position: sticky;
+  top: 58px;
+  height: calc(100vh - 58px);
+}
+.sidebar-section {
+  padding: 0 16px;
+  margin-bottom: 24px;
+}
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 0 8px;
+  margin-bottom: 8px;
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.stat-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.stat-box .val {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  font-family: 'DM Mono', monospace;
+}
+.stat-box .lbl {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.stat-box.green .val { color: var(--green); }
+.stat-box.blue .val { color: var(--blue-light); }
+.stat-box.amber .val { color: var(--amber); }
+
+.filter-group { margin-bottom: 16px; }
+.filter-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  margin-bottom: 6px;
+  padding: 0 8px;
+}
+.filter-input, .filter-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-input:focus, .filter-select:focus { border-color: var(--blue); }
+.filter-select option { background: var(--navy2); }
+
+.quote-list { padding: 0 8px; }
+.quote-item {
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-bottom: 4px;
+  transition: all 0.15s;
+}
+.quote-item:hover { background: var(--surface2); border-color: var(--border); }
+.quote-item.active { background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.3); }
+.qi-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.qi-meta { font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; }
+.qi-amount { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); }
+.qi-status {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 4px;
+}
+.status-draft { background: rgba(100,116,139,0.15); color: var(--text3); }
+.status-sent { background: rgba(37,99,235,0.15); color: var(--blue-light); }
+.status-accepted { background: rgba(16,185,129,0.15); color: var(--green); }
+.status-declined { background: rgba(239,68,68,0.15); color: var(--red); }
+
+/* ─── MAIN ─── */
+.main {
+  padding: 28px;
+  overflow-y: auto;
+}
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  color: var(--text3);
+}
+.empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+.empty-state h3 { font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 8px; }
+.empty-state p { font-size: 13px; max-width: 300px; line-height: 1.6; }
+
+/* ─── FORM CARD ─── */
+.form-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.form-card h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+.form-card .sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 20px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.full { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: 0.02em;
+}
+.field input, .field select {
+  background: var(--navy2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.field input:focus, .field select:focus { border-color: var(--blue); }
+.field select option { background: var(--navy2); }
+.field .hint { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title span {
+  background: var(--blue);
+  color: white;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+/* ─── ROOM ROWS ─── */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.room-item {
+  background: var(--navy2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.room-item .room-name {
+  font-size: 13px;
+  color: var(--text2);
+  flex: 1;
+}
+.room-item .room-icon { font-size: 16px; margin-right: 4px; }
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qty-btn {
+  width: 26px; height: 26px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s;
+  font-weight: 300;
+  line-height: 1;
+}
+.qty-btn:hover { background: var(--blue); border-color: var(--blue); }
+.qty-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  width: 24px;
+  text-align: center;
+}
+
+/* ─── QUOTE PREVIEW ─── */
+.quote-preview {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.quote-preview h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+.line-items { margin-bottom: 16px; }
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.line-item:last-child { border-bottom: none; }
+.line-item .item-name { color: var(--text2); }
+.line-item .item-detail { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.line-item .item-price { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); font-weight: 500; }
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: rgba(37,99,235,0.1);
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+}
+.total-label { font-size: 14px; font-weight: 600; color: var(--text); }
+.total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 600; color: var(--blue-light); letter-spacing: -0.03em; }
+
+/* ─── ACTIONS ─── */
+.actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: var(--blue-light); }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover { filter: brightness(1.1); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+.btn-outline:hover { border-color: var(--blue); color: var(--blue-light); }
+.btn-ghost { background: transparent; color: var(--text3); border: none; }
+.btn-ghost:hover { color: var(--red); }
+.btn-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--red); }
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--text);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--red); }
+
+/* ─── NAME MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  width: 360px;
+  transform: scale(0.96); transition: transform 0.2s;
+}
+.modal-overlay.show .modal-box { transform: scale(1); }
+.modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.modal-box p { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+.modal-box input {
+  width: 100%;
+  background: var(--navy2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  margin-bottom: 14px;
+}
+.modal-box input:focus { border-color: var(--blue); }
+
+/* ─── DETAIL VIEW ─── */
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+.detail-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.detail-header .meta {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* ─── RATES EDITOR ─── */
+.rates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.rate-item {
+  background: var(--navy2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rate-item .rate-icon { font-size: 18px; }
+.rate-item .rate-info { flex: 1; }
+.rate-item .rate-name { font-size: 13px; color: var(--text2); }
+.rate-item .rate-input-wrap { display: flex; align-items: center; gap: 4px; }
+.rate-item .rate-prefix { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.rate-item input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 5px 8px;
+  width: 90px;
+  outline: none;
+  text-align: right;
+}
+.rate-item input:focus { border-color: var(--blue); }
+
+/* ─── TABS ─── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.tab-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--blue-light); border-bottom-color: var(--blue-light); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ─── HISTORY TABLE ─── */
+.history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.history-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.history-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+}
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: rgba(255,255,255,0.02); }
+.history-table .mono { font-family: 'DM Mono', monospace; color: var(--text); }
+.history-table .amount { font-family: 'DM Mono', monospace; color: var(--green); font-weight: 500; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  .rooms-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid.three { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  nav { padding: 0 16px; }
+  .main { padding: 16px; }
+  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+  .rooms-grid { grid-template-columns: 1fr; }
+  .rates-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🏗</div>
+    QS Quote Tool
+  </div>
+  <div class="nav-right">
+    <span class="nav-tag" id="user-tag">—</span>
+    <button class="btn-new" onclick="newQuote()">+ New Quote</button>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <div class="stat-row">
+        <div class="stat-box blue">
+          <div class="val" id="stat-total">0</div>
+          <div class="lbl">Total Quotes</div>
+        </div>
+        <div class="stat-box green">
+          <div class="val" id="stat-accepted">0</div>
+          <div class="lbl">Accepted</div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box amber">
+          <div class="val" id="stat-sent">0</div>
+          <div class="lbl">Sent</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" id="stat-value">$0</div>
+          <div class="lbl">Total Value</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filter</div>
+      <div class="filter-group">
+        <div class="filter-label">Search</div>
+        <input class="filter-input" id="search-input" placeholder="Client name..." oninput="renderList()">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Status</div>
+        <select class="filter-select" id="status-filter" onchange="renderList()">
+          <option value="">All Statuses</option>
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="accepted">Accepted</option>
+          <option value="declined">Declined</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quotes</div>
+      <div class="quote-list" id="quote-list">
+        <div style="font-size:12px;color:var(--text3);padding:8px;">No quotes yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main-panel">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No quote selected</h3>
+      <p>Create a new quote or select one from the list to get started.</p>
+    </div>
+  </div>
+</div>
+
+<!-- NAME MODAL -->
+<div class="modal-overlay" id="name-modal">
+  <div class="modal-box">
+    <h3>👋 Welcome</h3>
+    <p>Enter your name to start creating quotes. This will be saved with each quote you create.</p>
+    <input type="text" id="name-input" placeholder="Your name..." onkeydown="if(event.key==='Enter')saveName()">
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1" onclick="saveName()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───
+let userName = localStorage.getItem('qs_username') || '';
+let quotes = JSON.parse(localStorage.getItem('qs_quotes') || '[]');
+let activeId = null;
+let activeTab = 'form';
+
+// ── ASSUMED RATES (AU construction, mid-range spec) ──
+// Base: ~$1,800/m² is typical AU mid-range new build (2024)
+// Room add-ons = fit-out premium above base m² rate
+// e.g. bathroom wet area tiling, waterproofing, fixtures etc.
+// These are PLACEHOLDERS — update once Reg confirms his rates
+let rates = JSON.parse(localStorage.getItem('qs_rates') || 'null') || {
+  base_per_m2: 1800,   // $1,800/m² — AU mid-range new build
+  bedroom:      4500,  // per bedroom fit-out (built-in robe, flooring, paint)
+  bathroom:    14000,  // full bathroom (tiles, waterproof, vanity, shower, fixtures)
+  ensuite:     11000,  // ensuite (slightly smaller than main bath)
+  toilet:       3200,  // separate toilet (WC, vanity, tiles)
+  kitchen:     22000,  // kitchen fit-out (cabinets, benchtop, appliances, splashback)
+  living:       3500,  // living/dining area premium (flooring, paint, lighting)
+  garage:       8500,  // garage (concrete, door, electrical)
+  laundry:      4800,  // laundry (trough, cabinetry, plumbing, tiles)
+  study:        3000,  // study/office (flooring, data points, paint)
+  outdoor:      5500,  // outdoor/deck (timber deck or concrete, per area)
+};
+
+const ROOM_CONFIG = [
+  { key: 'bedroom',  icon: '🛏', name: 'Bedrooms' },
+  { key: 'bathroom', icon: '🚿', name: 'Bathrooms' },
+  { key: 'ensuite',  icon: '🛁', name: 'Ensuites' },
+  { key: 'toilet',   icon: '🚽', name: 'Toilets' },
+  { key: 'kitchen',  icon: '🍳', name: 'Kitchens' },
+  { key: 'living',   icon: '🛋', name: 'Living Areas' },
+  { key: 'garage',   icon: '🚗', name: 'Garages' },
+  { key: 'laundry',  icon: '🧺', name: 'Laundry' },
+  { key: 'study',    icon: '💻', name: 'Study/Office' },
+  { key: 'outdoor',  icon: '🌿', name: 'Outdoor/Deck' },
+];
+
+const FIXED_COSTS = [
+  { key: 'site_setup',   name: 'Site Setup & Prelims',     amount: 8500  },
+  { key: 'admin',        name: 'Admin & Documentation',    amount: 1500  },
+  { key: 'council',      name: 'Council Approvals (est.)', amount: 4000  },
+  { key: 'engineering',  name: 'Engineering & Certif.',    amount: 3500  },
+];
+
+const LOCATION_MULTIPLIERS = {
+  metro:    { label: 'Metro / City',      mult: 1.00 },
+  regional: { label: 'Regional',          mult: 0.90 },
+  rural:    { label: 'Rural / Remote',    mult: 1.15 },
+  coastal:  { label: 'Coastal Premium',   mult: 1.10 },
+};
+
+// ─── INIT ───
+window.onload = () => {
+  if (!userName) {
+    showNameModal();
+  } else {
+    document.getElementById('user-tag').textContent = userName;
+  }
+  renderList();
+  updateStats();
+};
+
+function showNameModal() {
+  document.getElementById('name-modal').classList.add('show');
+  setTimeout(() => document.getElementById('name-input').focus(), 200);
+}
+
+function saveName() {
+  const val = document.getElementById('name-input').value.trim();
+  if (!val) return;
+  userName = val;
+  localStorage.setItem('qs_username', val);
+  document.getElementById('user-tag').textContent = val;
+  document.getElementById('name-modal').classList.remove('show');
+}
+
+// ─── QUOTES ───
+function saveQuotes() {
+  localStorage.setItem('qs_quotes', JSON.stringify(quotes));
+}
+
+function newQuote() {
+  if (!userName) { showNameModal(); return; }
+  const id = Date.now().toString();
+  const q = {
+    id,
+    client: '',
+    address: '',
+    contact: '',
+    email: '',
+    notes: '',
+    floor_area: 0,
+    rooms: { bedroom:3, bathroom:1, ensuite:1, toilet:1, kitchen:1, living:1, garage:1, laundry:1, study:0, outdoor:0 },
+    location: 'metro',
+    fixed_costs: { site_setup:true, admin:true, council:true, engineering:true },
+    status: 'draft',
+    created_by: userName,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  quotes.unshift(q);
+  saveQuotes();
+  renderList();
+  updateStats();
+  openQuote(id);
+}
+
+function openQuote(id) {
+  activeId = id;
+  activeTab = 'form';
+  renderList();
+  renderMain();
+}
+
+function getQuote(id) { return quotes.find(q => q.id === id); }
+
+function updateQuote(field, value) {
+  const q = getQuote(activeId);
+  if (!q) return;
+  if (field.includes('.')) {
+    const [a, b] = field.split('.');
+    q[a][b] = value;
+  } else {
+    q[field] = value;
+  }
+  q.updated_at = new Date().toISOString();
+  saveQuotes();
+  updateStats();
+  if (field === 'floor_area' || field.startsWith('rooms.')) {
+    updateQuotePreview();
+  }
+  if (field === 'client' || field === 'status') {
+    renderList();
+  }
+}
+
+function deleteQuote(id) {
+  if (!confirm('Delete this quote?')) return;
+  quotes = quotes.filter(q => q.id !== id);
+  saveQuotes();
+  updateStats();
+  renderList();
+  if (activeId === id) {
+    activeId = null;
+    renderMain();
+  }
+  showToast('Quote deleted', 'success');
+}
+
+// ─── CALC ───
+function calcQuote(q) {
+  const lines = [];
+  const locMult = LOCATION_MULTIPLIERS[q.location||'metro'].mult;
+
+  if (q.floor_area > 0) {
+    const amt = q.floor_area * rates.base_per_m2 * locMult;
+    lines.push({ name: `Floor Area (${q.floor_area} m²)`, detail: `${q.floor_area} × $${rates.base_per_m2.toLocaleString()}/m²${locMult!==1?' × '+locMult+'x loc':''}`, amount: amt, type:'base' });
+  }
+  ROOM_CONFIG.forEach(r => {
+    const qty = q.rooms[r.key] || 0;
+    if (qty > 0) {
+      const rate = rates[r.key] || 0;
+      const amt = qty * rate * locMult;
+      lines.push({ name: `${r.name} (×${qty})`, detail: `${qty} × $${rate.toLocaleString()}${locMult!==1?' × '+locMult+'x':''}`, amount: amt, type:'room' });
+    }
+  });
+  FIXED_COSTS.forEach(fc => {
+    if (q.fixed_costs && q.fixed_costs[fc.key]) {
+      lines.push({ name: fc.name, detail: 'Fixed cost', amount: fc.amount, type:'fixed' });
+    }
+  });
+
+  const subtotal = lines.filter(l=>l.type!=='fixed').reduce((s,l)=>s+l.amount,0);
+  const fixedTotal = lines.filter(l=>l.type==='fixed').reduce((s,l)=>s+l.amount,0);
+  const total = subtotal + fixedTotal;
+  return { lines, subtotal, fixedTotal, total, locMult };
+}
+
+// ─── RENDER ───
+function renderList() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const statusF = document.getElementById('status-filter').value;
+  let filtered = quotes.filter(q => {
+    const matchSearch = !search || (q.client||'').toLowerCase().includes(search) || (q.address||'').toLowerCase().includes(search);
+    const matchStatus = !statusF || q.status === statusF;
+    return matchSearch && matchStatus;
+  });
+  const el = document.getElementById('quote-list');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px;">No quotes found</div>';
+    return;
+  }
+  const { lines, total } = activeId ? calcQuote(getQuote(activeId)||{rooms:{}}) : { lines:[], total:0 };
+  el.innerHTML = filtered.map(q => {
+    const calc = calcQuote(q);
+    return `<div class="quote-item ${q.id === activeId ? 'active' : ''}" onclick="openQuote('${q.id}')">
+      <div class="qi-name">${q.client || 'Unnamed Client'}</div>
+      <div class="qi-meta">
+        <span>${q.address || '—'}</span>
+        <span class="qi-amount">$${calc.total.toLocaleString()}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+        <span class="qi-status status-${q.status}">${q.status.charAt(0).toUpperCase()+q.status.slice(1)}</span>
+        <span style="font-size:10px;color:var(--text3)">${q.created_by}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = quotes.length;
+  document.getElementById('stat-accepted').textContent = quotes.filter(q=>q.status==='accepted').length;
+  document.getElementById('stat-sent').textContent = quotes.filter(q=>q.status==='sent').length;
+  const totalVal = quotes.reduce((s,q)=>s+calcQuote(q).total, 0);
+  document.getElementById('stat-value').textContent = totalVal >= 1000000
+    ? '$' + (totalVal/1000000).toFixed(1) + 'M'
+    : totalVal >= 1000 ? '$' + Math.round(totalVal/1000) + 'k'
+    : '$' + totalVal.toLocaleString();
+}
+
+function renderMain() {
+  const el = document.getElementById('main-panel');
+  if (!activeId) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No quote selected</h3><p>Create a new quote or select one from the list to get started.</p></div>`;
+    return;
+  }
+  const q = getQuote(activeId);
+  if (!q) return;
+
+  const statusColors = { draft:'status-draft', sent:'status-sent', accepted:'status-accepted', declined:'status-declined' };
+
+  el.innerHTML = `
+  <div class="detail-header">
+    <div>
+      <h1>${q.client || 'Unnamed Client'} <span class="status-badge ${statusColors[q.status]}">${q.status.charAt(0).toUpperCase()+q.status.slice(1)}</span></h1>
+      <div class="meta">Created ${new Date(q.created_at).toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'})} by ${q.created_by} · ID: ${q.id.slice(-6)}</div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ CSV</button>
+      <button class="btn btn-outline" onclick="exportExcel('${q.id}')">↓ Excel</button>
+      <button class="btn btn-danger" onclick="deleteQuote('${q.id}')">Delete</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn ${activeTab==='form'?'active':''}" onclick="switchTab('form')">Quote Details</button>
+    <button class="tab-btn ${activeTab==='preview'?'active':''}" onclick="switchTab('preview')">Preview & Send</button>
+    <button class="tab-btn ${activeTab==='rates'?'active':''}" onclick="switchTab('rates')">Rate Schedule</button>
+    <button class="tab-btn ${activeTab==='history'?'active':''}" onclick="switchTab('history')">All Jobs</button>
+  </div>
+
+  <!-- TAB: FORM -->
+  <div class="tab-panel ${activeTab==='form'?'active':''}" id="tab-form">
+    <div class="form-card">
+      <h2>Client Details</h2>
+      <div class="sub">Basic information about this job</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>CLIENT NAME</label>
+          <input type="text" value="${q.client||''}" placeholder="John Smith" oninput="updateQuote('client',this.value)">
+        </div>
+        <div class="field">
+          <label>CONTACT NUMBER</label>
+          <input type="text" value="${q.contact||''}" placeholder="04XX XXX XXX" oninput="updateQuote('contact',this.value)">
+        </div>
+        <div class="field">
+          <label>EMAIL</label>
+          <input type="email" value="${q.email||''}" placeholder="john@email.com" oninput="updateQuote('email',this.value)">
+        </div>
+        <div class="field">
+          <label>STATUS</label>
+          <select onchange="updateQuote('status',this.value)">
+            ${['draft','sent','accepted','declined'].map(s=>`<option value="${s}" ${q.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-grid full" style="margin-top:14px">
+        <div class="field">
+          <label>PROJECT ADDRESS</label>
+          <input type="text" value="${q.address||''}" placeholder="12 Oak Street, Sydney NSW 2000" oninput="updateQuote('address',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>House Specifications</h2>
+      <div class="sub">Enter the size and room breakdown</div>
+      <div class="form-grid" style="margin-bottom:20px">
+        <div class="field">
+          <label>TOTAL FLOOR AREA (m²)</label>
+          <input type="number" value="${q.floor_area||''}" placeholder="e.g. 200" min="0" oninput="updateQuote('floor_area',parseFloat(this.value)||0)">
+          <div class="hint">Base rate applied across entire floor area</div>
+        </div>
+        <div class="field">
+          <label>LOCATION TYPE</label>
+          <select onchange="updateQuote('location',this.value)">
+            ${Object.entries(LOCATION_MULTIPLIERS).map(([k,v])=>`<option value="${k}" ${(q.location||'metro')===k?'selected':''}>${v.label} (×${v.mult})</option>`).join('')}
+          </select>
+          <div class="hint">Adjusts all rates by location multiplier</div>
+        </div>
+      </div>
+      <hr class="section-divider">
+      <div class="section-title">Fixed Costs <span>Tick to Include</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+        ${FIXED_COSTS.map(fc=>`
+          <label style="display:flex;align-items:center;gap:10px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text2)">
+            <input type="checkbox" ${(q.fixed_costs&&q.fixed_costs[fc.key])?'checked':''} onchange="updateQuote('fixed_costs.${fc.key}',this.checked)" style="accent-color:var(--blue);width:15px;height:15px">
+            <span style="flex:1">${fc.name}</span>
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">$${fc.amount.toLocaleString()}</span>
+          </label>
+        `).join('')}
+      </div>
+      <hr class="section-divider">
+      <div class="section-title">Room Breakdown <span>Auto-Priced</span></div>
+      <div class="rooms-grid" id="rooms-grid">
+        ${ROOM_CONFIG.map(r => `
+          <div class="room-item">
+            <span class="room-icon">${r.icon}</span>
+            <span class="room-name">${r.name}</span>
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeRoom('${r.key}',-1)">−</button>
+              <span class="qty-val" id="qty-${r.key}">${q.rooms[r.key]||0}</span>
+              <button class="qty-btn" onclick="changeRoom('${r.key}',1)">+</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Notes</h2>
+      <div class="sub">Any special requirements or comments</div>
+      <div class="field">
+        <textarea style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;width:100%;min-height:80px;outline:none;resize:vertical;font-weight:300;line-height:1.6;" placeholder="e.g. Client wants premium finishes in bathrooms, double garage..." oninput="updateQuote('notes',this.value)">${q.notes||''}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PREVIEW -->
+  <div class="tab-panel ${activeTab==='preview'?'active':''}" id="tab-preview">
+    <div class="quote-preview" id="quote-preview-block">
+      ${renderPreviewHTML(q)}
+    </div>
+    <div class="actions-row">
+      <button class="btn btn-primary" onclick="updateQuote('status','sent');renderMain();showToast('Marked as sent','success')">✓ Mark as Sent</button>
+      <button class="btn btn-success" onclick="updateQuote('status','accepted');renderMain();showToast('Marked as accepted ✓','success')">🎉 Mark as Accepted</button>
+      <button class="btn btn-outline" onclick="printQuote('${q.id}')">🖨 Print Quote</button>
+      <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ Export CSV</button>
+      <button class="btn btn-outline" onclick="exportExcel('${q.id}')">↓ Export Excel</button>
+    </div>
+  </div>
+
+  <!-- TAB: RATES -->
+  <div class="tab-panel ${activeTab==='rates'?'active':''}" id="tab-rates">
+    <div class="form-card">
+      <h2>Rate Schedule</h2>
+      <div class="sub">Set your prices per item. Changes apply to all new calculations immediately.</div>
+      <div class="section-title">Base Rate</div>
+      <div class="rates-grid" style="margin-bottom:20px">
+        <div class="rate-item">
+          <span class="rate-icon">📐</span>
+          <div class="rate-info"><div class="rate-name">Base rate per m²</div></div>
+          <div class="rate-input-wrap"><span class="rate-prefix">$</span><input type="number" value="${rates.base_per_m2}" oninput="updateRate('base_per_m2',this.value)"></div>
+        </div>
+      </div>
+      <div class="section-title">Room Rates</div>
+      <div class="rates-grid">
+        ${ROOM_CONFIG.map(r=>`
+          <div class="rate-item">
+            <span class="rate-icon">${r.icon}</span>
+            <div class="rate-info"><div class="rate-name">${r.name}</div></div>
+            <div class="rate-input-wrap"><span class="rate-prefix">$</span><input type="number" value="${rates[r.key]||0}" oninput="updateRate('${r.key}',this.value)"></div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="saveRates()">Save Rates</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: HISTORY -->
+  <div class="tab-panel ${activeTab==='history'?'active':''}" id="tab-history">
+    <div class="form-card">
+      <h2>All Jobs</h2>
+      <div class="sub">Complete history of all quotes created</div>
+      <div style="overflow-x:auto">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Address</th>
+              <th>Area</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Created By</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${quotes.length === 0 ? '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:20px">No quotes yet</td></tr>' :
+              quotes.map(q2 => {
+                const c2 = calcQuote(q2);
+                return `<tr>
+                  <td><a href="#" onclick="openQuote('${q2.id}');return false;" style="color:var(--blue-light);text-decoration:none">${q2.client||'Unnamed'}</a></td>
+                  <td>${q2.address||'—'}</td>
+                  <td class="mono">${q2.floor_area||0} m²</td>
+                  <td class="amount">$${c2.total.toLocaleString()}</td>
+                  <td><span class="qi-status status-${q2.status}">${q2.status}</span></td>
+                  <td>${q2.created_by}</td>
+                  <td class="mono">${new Date(q2.created_at).toLocaleDateString('en-AU')}</td>
+                  <td><button class="btn btn-ghost" onclick="exportCSV('${q2.id}')">CSV</button></td>
+                </tr>`;
+              }).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="exportAllCSV()">↓ Export All as CSV</button>
+        <button class="btn btn-outline" onclick="exportAllExcel()">↓ Export All as Excel</button>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function renderPreviewHTML(q) {
+  const calc = calcQuote(q);
+  if (calc.lines.length === 0) {
+    return `<p style="color:var(--text3);font-size:13px">Fill in the house details to see the quote preview.</p>`;
+  }
+  const locLabel = LOCATION_MULTIPLIERS[q.location||'metro'].label;
+  const buildLines = calc.lines.filter(l=>l.type!=='fixed');
+  const fixedLines = calc.lines.filter(l=>l.type==='fixed');
+  return `
+    <h2>Quote Summary</h2>
+    <div style="margin:12px 0 16px;font-size:13px;color:var(--text2)">
+      <strong style="color:var(--text)">${q.client||'Client'}</strong><br>
+      ${q.address||'Address not specified'}<br>
+      ${q.email ? `<span style="color:var(--text3)">${q.email}</span><br>` : ''}
+      <span style="color:var(--text3)">Location: ${locLabel} · Prepared by: ${q.created_by} · ${new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</span>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.06em;margin-bottom:6px">BUILD COSTS</div>
+    <div class="line-items">
+      ${buildLines.map(l=>`
+        <div class="line-item">
+          <div><div class="item-name">${l.name}</div><div class="item-detail">${l.detail}</div></div>
+          <div class="item-price">$${Math.round(l.amount).toLocaleString()}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">
+      <span>Build Subtotal</span>
+      <span style="font-family:'DM Mono',monospace">$${Math.round(calc.subtotal).toLocaleString()}</span>
+    </div>
+
+    ${fixedLines.length > 0 ? `
+    <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.06em;margin:14px 0 6px">FIXED COSTS</div>
+    <div class="line-items">
+      ${fixedLines.map(l=>`
+        <div class="line-item">
+          <div class="item-name">${l.name}</div>
+          <div class="item-price">$${Math.round(l.amount).toLocaleString()}</div>
+        </div>
+      `).join('')}
+    </div>` : ''}
+
+    ${q.notes ? `<div style="margin:12px 0;padding:12px;background:var(--navy2);border-radius:var(--radius-sm);border-left:3px solid var(--blue);font-size:13px;color:var(--text2)"><strong style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">NOTES</strong>${q.notes}</div>` : ''}
+    <div class="total-row" style="margin-top:12px">
+      <div class="total-label">TOTAL ESTIMATE</div>
+      <div class="total-amount">$${Math.round(calc.total).toLocaleString()}</div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">* Estimate only based on assumed rates. Final pricing subject to site inspection and detailed scope. Rates assume ${locLabel} location.</div>
+  `;
+}
+
+function updateQuotePreview() {
+  const el = document.getElementById('quote-preview-block');
+  if (!el || !activeId) return;
+  el.innerHTML = renderPreviewHTML(getQuote(activeId));
+}
+
+function changeRoom(key, delta) {
+  const q = getQuote(activeId);
+  if (!q) return;
+  q.rooms[key] = Math.max(0, (q.rooms[key]||0) + delta);
+  q.updated_at = new Date().toISOString();
+  saveQuotes();
+  document.getElementById('qty-'+key).textContent = q.rooms[key];
+  updateQuotePreview();
+  updateStats();
+  renderList();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  renderMain();
+}
+
+function updateRate(key, val) {
+  rates[key] = parseFloat(val) || 0;
+}
+
+function saveRates() {
+  localStorage.setItem('qs_rates', JSON.stringify(rates));
+  showToast('Rates saved ✓', 'success');
+  if (activeId) updateQuotePreview();
+}
+
+// ─── EXPORT ───
+function quoteToRows(q) {
+  const calc = calcQuote(q);
+  const rows = [
+    ['QS Quote Tool — Export'],
+    [''],
+    ['Client', q.client||''],
+    ['Address', q.address||''],
+    ['Contact', q.contact||''],
+    ['Email', q.email||''],
+    ['Status', q.status],
+    ['Created By', q.created_by],
+    ['Date', new Date(q.created_at).toLocaleDateString('en-AU')],
+    [''],
+    ['ITEM', 'DETAIL', 'AMOUNT'],
+    ...calc.lines.map(l => [l.name, l.detail, l.amount]),
+    [''],
+    ['TOTAL ESTIMATE', '', calc.total],
+    [''],
+    ['Notes', q.notes||''],
+  ];
+  return rows;
+}
+
+function exportCSV(id) {
+  const q = getQuote(id);
+  if (!q) return;
+  const rows = quoteToRows(q);
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadFile(csv, `quote-${(q.client||'client').replace(/\s/g,'-')}-${q.id.slice(-6)}.csv`, 'text/csv');
+  showToast('CSV downloaded ✓', 'success');
+}
+
+function exportAllCSV() {
+  const allRows = [['ID','Client','Address','Floor Area','Total','Status','Created By','Date']];
+  quotes.forEach(q => {
+    const c = calcQuote(q);
+    allRows.push([q.id.slice(-6), q.client||'', q.address||'', q.floor_area||0, c.total, q.status, q.created_by, new Date(q.created_at).toLocaleDateString('en-AU')]);
+  });
+  const csv = allRows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadFile(csv, `all-quotes-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
+  showToast('All quotes exported ✓', 'success');
+}
+
+function exportExcel(id) {
+  const q = getQuote(id);
+  if (!q) return;
+  const rows = quoteToRows(q);
+  const xml = buildExcelXML(rows);
+  downloadFile(xml, `quote-${(q.client||'client').replace(/\s/g,'-')}-${q.id.slice(-6)}.xls`, 'application/vnd.ms-excel');
+  showToast('Excel downloaded ✓', 'success');
+}
+
+function exportAllExcel() {
+  const allRows = [['ID','Client','Address','Floor Area (m²)','Total ($)','Status','Created By','Date']];
+  quotes.forEach(q => {
+    const c = calcQuote(q);
+    allRows.push([q.id.slice(-6), q.client||'', q.address||'', q.floor_area||0, c.total, q.status, q.created_by, new Date(q.created_at).toLocaleDateString('en-AU')]);
+  });
+  const xml = buildExcelXML(allRows);
+  downloadFile(xml, `all-quotes-${new Date().toISOString().slice(0,10)}.xls`, 'application/vnd.ms-excel');
+  showToast('All quotes exported ✓', 'success');
+}
+
+function buildExcelXML(rows) {
+  const xmlRows = rows.map(r =>
+    `<Row>${r.map(c=>`<Cell><Data ss:Type="${typeof c==='number'?'Number':'String'}">${String(c).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</Data></Cell>`).join('')}</Row>`
+  ).join('');
+  return `<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Quote"><Table>${xmlRows}</Table></Worksheet></Workbook>`;
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function printQuote(id) {
+  const q = getQuote(id);
+  if (!q) return;
+  const html = renderPreviewHTML(q).replace(/var\(--[^)]+\)/g, '#000');
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Quote - ${q.client||''}</title><style>body{font-family:sans-serif;padding:40px;max-width:700px;margin:0 auto;color:#111}h2{margin-bottom:12px}.line-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}.total-row{display:flex;justify-content:space-between;padding:14px;background:#f0f4ff;border-radius:8px;margin-top:10px;font-weight:bold;font-size:18px}@media print{body{padding:20px}}</style></head><body>${html}</body></html>`);
+  w.document.close();
+  w.print();
+}
+
+// ─── TOAST ───
+function showToast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
