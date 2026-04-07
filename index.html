@@ -6,652 +6,220 @@
 <title>QS Quote Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
-  --navy: #f0f4fa;
-  --navy2: #ffffff;
-  --blue: #2563eb;
-  --blue-light: #3b82f6;
-  --green: #059669;
-  --amber: #d97706;
-  --red: #dc2626;
-  --surface: #f8fafc;
-  --surface2: #ffffff;
-  --surface3: #f1f5f9;
-  --border: rgba(15,23,42,0.09);
+  --navy:    #011648;
+  --blue:    #2563eb;
+  --blue2:   #3b82f6;
+  --green:   #059669;
+  --amber:   #d97706;
+  --red:     #dc2626;
+  --bg:      #f0f4fa;
+  --surface: #ffffff;
+  --surface2:#f8fafc;
+  --surface3:#f1f5f9;
+  --border:  rgba(15,23,42,0.09);
   --border2: rgba(15,23,42,0.15);
-  --text: #0f172a;
-  --text2: #334155;
-  --text3: #64748b;
-  --radius: 12px;
-  --radius-sm: 8px;
+  --text:    #0f172a;
+  --text2:   #334155;
+  --text3:   #64748b;
+  --r:       12px;
+  --rs:      8px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 15px; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 300;
-  background: var(--navy);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.6;
-}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
 
-/* ─── NAV ─── */
-nav {
-  background: #ffffff;
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 4px rgba(15,23,42,0.06);
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 28px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.nav-logo {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.nav-logo-icon {
-  width: 30px; height: 30px;
-  background: var(--blue);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-}
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.nav-tag {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text3);
-  background: var(--surface3);
-  border: 1px solid var(--border);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-family: 'DM Mono', monospace;
-}
-.btn-new {
-  background: var(--blue);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.btn-new:hover { background: var(--blue-light); }
+/* NAV */
+nav{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 4px rgba(15,23,42,.06);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100}
+.nav-logo{font-size:16px;font-weight:600;letter-spacing:-.03em;color:var(--text);display:flex;align-items:center;gap:10px}
+.nav-logo-icon{width:30px;height:30px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-tag{font-size:11px;font-weight:500;color:var(--text3);background:var(--surface3);border:1px solid var(--border);padding:4px 10px;border-radius:20px;font-family:'DM Mono',monospace;cursor:pointer}
+.nav-tag:hover{border-color:var(--blue);color:var(--blue)}
+.btn-new{background:var(--blue);color:#fff;border:none;padding:8px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .15s}
+.btn-new:hover{background:var(--blue2)}
 
-/* ─── LAYOUT ─── */
-.layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  min-height: calc(100vh - 58px);
-}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 58px)}
 
-/* ─── SIDEBAR ─── */
-.sidebar {
-  background: #f8fafc;
-  border-right: 1px solid var(--border);
-  padding: 20px 0;
-  overflow-y: auto;
-  position: sticky;
-  top: 58px;
-  height: calc(100vh - 58px);
-}
-.sidebar-section {
-  padding: 0 16px;
-  margin-bottom: 24px;
-}
-.sidebar-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text3);
-  padding: 0 8px;
-  margin-bottom: 8px;
-}
-.stat-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.stat-box {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
-}
-.stat-box .val {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.03em;
-  font-family: 'DM Mono', monospace;
-}
-.stat-box .lbl {
-  font-size: 11px;
-  color: var(--text3);
-  margin-top: 2px;
-}
-.stat-box.green .val { color: var(--green); }
-.stat-box.blue .val { color: var(--blue); }
-.stat-box.amber .val { color: var(--amber); }
+/* SIDEBAR */
+.sidebar{background:#f8fafc;border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:58px;height:calc(100vh - 58px)}
+.sidebar-section{padding:0 16px;margin-bottom:24px}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:8px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:12px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.stat-box .val{font-size:20px;font-weight:600;color:var(--text);letter-spacing:-.03em;font-family:'DM Mono',monospace}
+.stat-box .lbl{font-size:11px;color:var(--text3);margin-top:2px}
+.stat-box.blue .val{color:var(--blue)}
+.stat-box.green .val{color:var(--green)}
+.stat-box.amber .val{color:var(--amber)}
+.filter-group{margin-bottom:16px}
+.filter-label{font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px;padding:0 8px}
+.filter-input,.filter-select{width:100%;background:#fff;border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;outline:none;transition:border-color .15s}
+.filter-input:focus,.filter-select:focus{border-color:var(--blue)}
+.quote-list{}
+.qi{padding:12px 10px;border-radius:var(--rs);cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:all .15s}
+.qi:hover{background:#fff;border-color:var(--border2)}
+.qi.active{background:rgba(37,99,235,.06);border-color:rgba(37,99,235,.25)}
+.qi-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.qi-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.qi-amount{font-family:'DM Mono',monospace;font-size:12px;color:var(--green)}
+.qi-addr{font-size:11px;color:var(--text3)}
+.badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;display:inline-block}
+.b-draft{background:rgba(100,116,139,.12);color:var(--text3)}
+.b-sent{background:rgba(37,99,235,.12);color:var(--blue)}
+.b-accepted{background:rgba(5,150,105,.12);color:var(--green)}
+.b-declined{background:rgba(220,38,38,.12);color:var(--red)}
+.qi-by{font-size:10px;color:var(--text3)}
 
-.filter-group { margin-bottom: 16px; }
-.filter-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text3);
-  margin-bottom: 6px;
-  padding: 0 8px;
-}
-.filter-input, .filter-select {
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  padding: 8px 12px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.filter-input:focus, .filter-select:focus { border-color: var(--blue); }
-.filter-select option { background: #ffffff; color: var(--text); }
+/* MAIN */
+.main{padding:28px;overflow-y:auto}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty-state h3{font-size:16px;font-weight:500;color:var(--text2);margin-bottom:8px}
+.empty-state p{font-size:13px;max-width:300px}
 
-.quote-list { padding: 0 8px; }
-.quote-item {
-  padding: 12px 10px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  border: 1px solid transparent;
-  margin-bottom: 4px;
-  transition: all 0.15s;
-}
-.quote-item:hover { background: #ffffff; border-color: var(--border2); }
-.quote-item.active { background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.25); }
-.qi-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
-.qi-meta { font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; }
-.qi-amount { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); }
-.qi-status {
-  font-size: 10px;
-  font-weight: 500;
-  padding: 2px 7px;
-  border-radius: 20px;
-  display: inline-block;
-  margin-top: 4px;
-}
-.status-draft { background: rgba(100,116,139,0.15); color: var(--text3); }
-.status-sent { background: rgba(37,99,235,0.15); color: var(--blue-light); }
-.status-accepted { background: rgba(16,185,129,0.15); color: var(--green); }
-.status-declined { background: rgba(239,68,68,0.15); color: var(--red); }
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.card h2{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:-.02em}
+.card .sub{font-size:12px;color:var(--text3);margin-bottom:20px}
 
-/* ─── MAIN ─── */
-.main {
-  padding: 28px;
-  overflow-y: auto;
-}
+/* FORM */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid1{display:grid;grid-template-columns:1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.02em}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);background:#fff}
+.field .hint{font-size:11px;color:var(--text3);margin-top:2px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.sec-title{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-title span{background:var(--blue);color:#fff;font-size:10px;padding:2px 7px;border-radius:20px}
 
-/* ─── EMPTY STATE ─── */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  text-align: center;
-  color: var(--text3);
-}
-.empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
-.empty-state h3 { font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 8px; }
-.empty-state p { font-size: 13px; max-width: 300px; line-height: 1.6; }
+/* ROOMS */
+.rooms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.room-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:8px}
+.room-icon{font-size:16px}
+.room-name{font-size:13px;color:var(--text2);flex:1}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qty-btn{width:26px;height:26px;background:#fff;border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;line-height:1}
+.qty-btn:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+.qty-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text);width:24px;text-align:center}
 
-/* ─── FORM CARD ─── */
-.form-card {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
-}
-.form-card h2 {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-  letter-spacing: -0.02em;
-}
-.form-card .sub {
-  font-size: 12px;
-  color: var(--text3);
-  margin-bottom: 20px;
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
-.form-grid.full { grid-template-columns: 1fr; }
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text3);
-  letter-spacing: 0.02em;
-}
-.field input, .field select {
-  background: #f8fafc;
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  padding: 9px 12px;
-  outline: none;
-  transition: border-color 0.15s;
-  width: 100%;
-}
-.field input:focus, .field select:focus { border-color: var(--blue); background: #fff; }
-.field select option { background: var(--navy2); }
-.field .hint { font-size: 11px; color: var(--text3); margin-top: 2px; }
+/* FIXED COSTS */
+.fc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fc-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text2)}
+.fc-item input[type=checkbox]{accent-color:var(--blue);width:15px;height:15px;cursor:pointer}
+.fc-item .fc-name{flex:1}
+.fc-item .fc-amt{font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)}
 
-.section-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 20px 0;
-}
-.section-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text2);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title span {
-  background: var(--blue);
-  color: white;
-  font-size: 10px;
-  padding: 2px 7px;
-  border-radius: 20px;
-}
+/* TABS */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:var(--text3);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;margin-bottom:-1px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
 
-/* ─── ROOM ROWS ─── */
-.rooms-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.room-item {
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.room-item .room-name {
-  font-size: 13px;
-  color: var(--text2);
-  flex: 1;
-}
-.room-item .room-icon { font-size: 16px; margin-right: 4px; }
-.qty-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.qty-btn {
-  width: 26px; height: 26px;
-  background: #ffffff;
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.1s;
-  font-weight: 400;
-  line-height: 1;
-}
-.qty-btn:hover { background: var(--blue); border-color: var(--blue); color: white; }
-.qty-val {
-  font-family: 'DM Mono', monospace;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  width: 24px;
-  text-align: center;
-}
+/* DETAIL HEADER */
+.detail-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px}
+.detail-hdr h1{font-size:22px;font-weight:600;letter-spacing:-.03em}
+.detail-hdr .meta{font-size:12px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace}
+.detail-actions{display:flex;gap:8px;flex-shrink:0}
 
-/* ─── QUOTE PREVIEW ─── */
-.quote-preview {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
-}
-.quote-preview h2 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  letter-spacing: -0.02em;
-}
-.line-items { margin-bottom: 16px; }
-.line-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-.line-item:last-child { border-bottom: none; }
-.line-item .item-name { color: var(--text2); }
-.line-item .item-detail { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
-.line-item .item-price { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); font-weight: 500; }
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  background: rgba(37,99,235,0.06);
-  border: 1px solid rgba(37,99,235,0.18);
-  border-radius: var(--radius-sm);
-  margin-top: 8px;
-}
-.total-label { font-size: 14px; font-weight: 600; color: var(--text); }
-.total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 600; color: var(--blue); letter-spacing: -0.03em; }
+/* PREVIEW */
+.preview-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.line-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.line-item:last-child{border-bottom:none}
+.item-name{color:var(--text2)}
+.item-detail{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.item-price{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500}
+.total-box{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:var(--rs);margin-top:8px}
+.total-label{font-size:14px;font-weight:600;color:var(--text)}
+.total-amount{font-family:'DM Mono',monospace;font-size:22px;font-weight:600;color:var(--blue);letter-spacing:-.03em}
 
-/* ─── ACTIONS ─── */
-.actions-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.btn {
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: none;
-}
-.btn-primary { background: var(--blue); color: white; }
-.btn-primary:hover { background: var(--blue-light); }
-.btn-success { background: var(--green); color: white; }
-.btn-success:hover { filter: brightness(1.1); }
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--text2);
-}
-.btn-outline:hover { border-color: var(--blue); color: var(--blue-light); }
-.btn-ghost { background: transparent; color: var(--text3); border: none; }
-.btn-ghost:hover { color: var(--red); }
-.btn-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--red); }
-.btn-danger:hover { background: rgba(239,68,68,0.2); }
+/* RATES */
+.rates-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rate-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.rate-icon{font-size:18px}
+.rate-name{font-size:13px;color:var(--text2);flex:1}
+.rate-input-wrap{display:flex;align-items:center;gap:4px}
+.rate-prefix{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+.rate-item input{background:#fff;border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:5px 8px;width:90px;outline:none;text-align:right}
+.rate-item input:focus{border-color:var(--blue)}
 
-/* ─── TOAST ─── */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #1e293b;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius);
-  padding: 12px 18px;
-  font-size: 13px;
-  color: #f1f5f9;
-  z-index: 9999;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.25s;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-.toast.success { border-color: var(--green); }
-.toast.error { border-color: var(--red); }
+/* HISTORY TABLE */
+.history-table{width:100%;border-collapse:collapse;font-size:13px}
+.history-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border2);background:var(--surface2)}
+.history-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.history-table tr:last-child td{border-bottom:none}
+.history-table tr:hover td{background:var(--surface2)}
+.mono{font-family:'DM Mono',monospace;color:var(--text)}
+.amount{font-family:'DM Mono',monospace;color:var(--green);font-weight:500}
 
-/* ─── NAME MODAL ─── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(15,23,42,0.4);
-  backdrop-filter: blur(4px);
-  z-index: 500;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-}
-.modal-overlay.show { opacity: 1; pointer-events: all; }
-.modal-box {
-  background: #ffffff;
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  padding: 28px 32px;
-  width: 360px;
-  box-shadow: 0 20px 60px rgba(15,23,42,0.15);
-  transform: scale(0.96); transition: transform 0.2s;
-}
-.modal-overlay.show .modal-box { transform: scale(1); }
-.modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-.modal-box p { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
-.modal-box input {
-  width: 100%;
-  background: #f8fafc;
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  padding: 10px 14px;
-  outline: none;
-  margin-bottom: 14px;
-}
-.modal-box input:focus { border-color: var(--blue); background: #fff; }
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue2)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{filter:brightness(1.1)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-navy{background:var(--navy);color:#fff;border:none}
+.btn-navy:hover{opacity:.9}
+.btn-danger{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);color:var(--red)}
+.btn-danger:hover{background:rgba(220,38,38,.15)}
+.actions-row{display:flex;gap:10px;flex-wrap:wrap}
 
-/* ─── DETAIL VIEW ─── */
-.detail-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 12px;
-}
-.detail-header h1 {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-}
-.detail-header .meta {
-  font-size: 12px;
-  color: var(--text3);
-  margin-top: 4px;
-  font-family: 'DM Mono', monospace;
-}
-.detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.status-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-left: 10px;
-  vertical-align: middle;
-}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.4);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{background:#fff;border:1px solid var(--border2);border-radius:var(--r);padding:28px 32px;width:360px;box-shadow:0 20px 60px rgba(15,23,42,.15);transform:scale(.96);transition:transform .2s}
+.overlay.show .modal{transform:scale(1)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.modal p{font-size:13px;color:var(--text3);margin-bottom:20px}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 14px;outline:none;margin-bottom:14px}
+.modal input:focus{border-color:var(--blue);background:#fff}
 
-/* ─── RATES EDITOR ─── */
-.rates-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-.rate-item {
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.rate-item .rate-icon { font-size: 18px; }
-.rate-item .rate-info { flex: 1; }
-.rate-item .rate-name { font-size: 13px; color: var(--text2); }
-.rate-item .rate-input-wrap { display: flex; align-items: center; gap: 4px; }
-.rate-item .rate-prefix { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
-.rate-item input {
-  background: #ffffff;
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  color: var(--text);
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  padding: 5px 8px;
-  width: 90px;
-  outline: none;
-  text-align: right;
-}
-.rate-item input:focus { border-color: var(--blue); }
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:12px 18px;font-size:13px;color:#f1f5f9;z-index:9999;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-color:var(--green)}
+.toast.error{border-color:var(--red)}
 
-/* ─── TABS ─── */
-.tabs {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
-}
-.tab-btn {
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text3);
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: 'DM Sans', sans-serif;
-  margin-bottom: -1px;
-}
-.tab-btn:hover { color: var(--text); }
-.tab-btn.active { color: var(--blue-light); border-bottom-color: var(--blue-light); }
-
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ─── HISTORY TABLE ─── */
-.history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.history-table th {
-  text-align: left;
-  padding: 8px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text3);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--border2);
-  background: #f8fafc;
-}
-.history-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text2);
-}
-.history-table tr:last-child td { border-bottom: none; }
-.history-table tr:hover td { background: #f8fafc; }
-.history-table .mono { font-family: 'DM Mono', monospace; color: var(--text); }
-.history-table .amount { font-family: 'DM Mono', monospace; color: var(--green); font-weight: 500; }
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-  .rooms-grid { grid-template-columns: 1fr 1fr; }
-  .form-grid.three { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 600px) {
-  nav { padding: 0 16px; }
-  .main { padding: 16px; }
-  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
-  .rooms-grid { grid-template-columns: 1fr; }
-  .rates-grid { grid-template-columns: 1fr; }
-}
+/* RESPONSIVE */
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}.rooms-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){nav{padding:0 16px}.main{padding:16px}.grid2{grid-template-columns:1fr}.rooms-grid{grid-template-columns:1fr}.rates-grid{grid-template-columns:1fr}.fc-grid{grid-template-columns:1fr}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="nav-logo">
     <div class="nav-logo-icon">🏗</div>
     QS Quote Tool
   </div>
   <div class="nav-right">
-    <span class="nav-tag" id="user-tag">Loading...</span>
+    <span class="nav-tag" id="user-tag" onclick="changeUser()">—</span>
     <button class="btn-new" onclick="newQuote()">+ New Quote</button>
   </div>
 </nav>
 
-<!-- LAYOUT -->
 <div class="layout">
-
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Overview</div>
       <div class="stat-row">
-        <div class="stat-box blue">
-          <div class="val" id="stat-total">0</div>
-          <div class="lbl">Total Quotes</div>
-        </div>
-        <div class="stat-box green">
-          <div class="val" id="stat-accepted">0</div>
-          <div class="lbl">Accepted</div>
-        </div>
+        <div class="stat-box blue"><div class="val" id="stat-total">0</div><div class="lbl">Total Quotes</div></div>
+        <div class="stat-box green"><div class="val" id="stat-accepted">0</div><div class="lbl">Accepted</div></div>
       </div>
       <div class="stat-row">
-        <div class="stat-box amber">
-          <div class="val" id="stat-sent">0</div>
-          <div class="lbl">Sent</div>
-        </div>
-        <div class="stat-box">
-          <div class="val" id="stat-value">$0</div>
-          <div class="lbl">Total Value</div>
-        </div>
+        <div class="stat-box amber"><div class="val" id="stat-sent">0</div><div class="lbl">Sent</div></div>
+        <div class="stat-box"><div class="val" id="stat-value">$0</div><div class="lbl">Total Value</div></div>
       </div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-label">Filter</div>
       <div class="filter-group">
@@ -669,16 +237,14 @@ nav {
         </select>
       </div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-label">Quotes</div>
       <div class="quote-list" id="quote-list">
-        <div style="font-size:12px;color:var(--text3);padding:8px;">No quotes yet</div>
+        <div style="font-size:12px;color:var(--text3);padding:8px">Loading...</div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="main" id="main-panel">
     <div class="empty-state">
       <div class="empty-icon">📋</div>
@@ -689,183 +255,159 @@ nav {
 </div>
 
 <!-- NAME MODAL -->
-<div class="modal-overlay" id="name-modal">
-  <div class="modal-box">
+<div class="overlay" id="name-overlay">
+  <div class="modal">
     <h3>👋 Welcome</h3>
-    <p>Enter your name to start creating quotes. This will be saved with each quote you create.</p>
+    <p>Enter your name to start creating quotes. Saved with every quote you create.</p>
     <input type="text" id="name-input" placeholder="Your name..." onkeydown="if(event.key==='Enter')saveName()">
-    <div style="display:flex;gap:8px;">
+    <div style="display:flex;gap:8px">
       <button class="btn btn-primary" style="flex:1" onclick="saveName()">Continue</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── SUPABASE CONFIG ───
+// ── CONFIG ──
 const SUPABASE_URL = 'https://wljoyrwjculthelfgzth.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indsam95cndqY3VsdGhlbGZnenRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODM1MTEsImV4cCI6MjA5MDE1OTUxMX0.8f3NV96YP9jOj__W9XiEDIiJ2gFlyBK53wnQJ1Tp6X0';
-
-async function sbFetch(path, options = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...options,
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': options.prefer || 'return=representation',
-      ...(options.headers||{}),
-    },
-  });
-  if (!res.ok) { const e = await res.text(); throw new Error(e); }
-  const t = await res.text();
-  return t ? JSON.parse(t) : [];
-}
-
-// ─── STATE ───
-let userName = localStorage.getItem('qs_username') || '';
-let quotes = [];
-let activeId = null;
-let activeTab = 'form';
-let isSaving = false;
-
-// ── ASSUMED RATES (AU construction, mid-range spec) ──
-// Base: ~$1,800/m² is typical AU mid-range new build (2024)
-// Room add-ons = fit-out premium above base m² rate
-// e.g. bathroom wet area tiling, waterproofing, fixtures etc.
-// These are PLACEHOLDERS — update once Reg confirms his rates
-let rates = JSON.parse(localStorage.getItem('qs_rates') || 'null') || {
-  base_per_m2: 1800,   // $1,800/m² — AU mid-range new build
-  bedroom:      4500,  // per bedroom fit-out (built-in robe, flooring, paint)
-  bathroom:    14000,  // full bathroom (tiles, waterproof, vanity, shower, fixtures)
-  ensuite:     11000,  // ensuite (slightly smaller than main bath)
-  toilet:       3200,  // separate toilet (WC, vanity, tiles)
-  kitchen:     22000,  // kitchen fit-out (cabinets, benchtop, appliances, splashback)
-  living:       3500,  // living/dining area premium (flooring, paint, lighting)
-  garage:       8500,  // garage (concrete, door, electrical)
-  laundry:      4800,  // laundry (trough, cabinetry, plumbing, tiles)
-  study:        3000,  // study/office (flooring, data points, paint)
-  outdoor:      5500,  // outdoor/deck (timber deck or concrete, per area)
-};
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indsam95cndqY3VsdGhlbGZnenRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODM1MTEsImV4cCI6MjA5MDE1OTUxMX0.8f3NV96YP9jOj__W9XiEDIiJ2gFlyBK53wnQJ1Tp6X0';
 
 const ROOM_CONFIG = [
-  { key: 'bedroom',  icon: '🛏', name: 'Bedrooms' },
-  { key: 'bathroom', icon: '🚿', name: 'Bathrooms' },
-  { key: 'ensuite',  icon: '🛁', name: 'Ensuites' },
-  { key: 'toilet',   icon: '🚽', name: 'Toilets' },
-  { key: 'kitchen',  icon: '🍳', name: 'Kitchens' },
-  { key: 'living',   icon: '🛋', name: 'Living Areas' },
-  { key: 'garage',   icon: '🚗', name: 'Garages' },
-  { key: 'laundry',  icon: '🧺', name: 'Laundry' },
-  { key: 'study',    icon: '💻', name: 'Study/Office' },
-  { key: 'outdoor',  icon: '🌿', name: 'Outdoor/Deck' },
+  {key:'bedroom', icon:'🛏', name:'Bedrooms'},
+  {key:'bathroom',icon:'🚿', name:'Bathrooms'},
+  {key:'ensuite', icon:'🛁', name:'Ensuites'},
+  {key:'toilet',  icon:'🚽', name:'Toilets'},
+  {key:'kitchen', icon:'🍳', name:'Kitchens'},
+  {key:'living',  icon:'🛋', name:'Living Areas'},
+  {key:'garage',  icon:'🚗', name:'Garages'},
+  {key:'laundry', icon:'🧺', name:'Laundry'},
+  {key:'study',   icon:'💻', name:'Study/Office'},
+  {key:'outdoor', icon:'🌿', name:'Outdoor/Deck'},
 ];
 
 const FIXED_COSTS = [
-  { key: 'site_setup',   name: 'Site Setup & Prelims',     amount: 8500  },
-  { key: 'admin',        name: 'Admin & Documentation',    amount: 1500  },
-  { key: 'council',      name: 'Council Approvals (est.)', amount: 4000  },
-  { key: 'engineering',  name: 'Engineering & Certif.',    amount: 3500  },
+  {key:'site_setup',  name:'Site Setup & Prelims',     amount:8500},
+  {key:'admin',       name:'Admin & Documentation',    amount:1500},
+  {key:'council',     name:'Council Approvals (est.)', amount:4000},
+  {key:'engineering', name:'Engineering & Certif.',    amount:3500},
 ];
 
-const LOCATION_MULTIPLIERS = {
-  metro:    { label: 'Metro / City',      mult: 1.00 },
-  regional: { label: 'Regional',          mult: 0.90 },
-  rural:    { label: 'Rural / Remote',    mult: 1.15 },
-  coastal:  { label: 'Coastal Premium',   mult: 1.10 },
+const LOCATIONS = {
+  metro:    {label:'Metro / City',     mult:1.00},
+  regional: {label:'Regional',         mult:0.90},
+  rural:    {label:'Rural / Remote',   mult:1.15},
+  coastal:  {label:'Coastal Premium',  mult:1.10},
 };
 
-// ─── INIT ───
-window.onload = async () => {
+let DEFAULT_RATES = {
+  base_per_m2:1800, bedroom:4500, bathroom:14000, ensuite:11000,
+  toilet:3200, kitchen:22000, living:3500, garage:8500,
+  laundry:4800, study:3000, outdoor:5500,
+};
+
+// ── STATE ──
+let userName = localStorage.getItem('qs_user') || '';
+let rates = JSON.parse(localStorage.getItem('qs_rates') || 'null') || DEFAULT_RATES;
+let quotes = [];
+let activeId = null;
+let activeTab = 'form';
+let saveTimer = null;
+
+// ── SUPABASE ──
+async function sbGet(path) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sbUpsert(row) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/quotes', {
+    method: 'POST',
+    headers: {
+      'apikey':SUPABASE_KEY,
+      'Authorization':'Bearer '+SUPABASE_KEY,
+      'Content-Type':'application/json',
+      'Prefer':'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify(row)
+  });
+  if (!r.ok) { const e = await r.text(); throw new Error(e); }
+}
+
+async function sbDelete(id) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/quotes?id=eq.' + id, {
+    method: 'DELETE',
+    headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'}
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// ── INIT ──
+window.onload = async function() {
   if (!userName) {
     showNameModal();
-    // Still load quotes in background
-    await loadQuotes();
   } else {
     document.getElementById('user-tag').textContent = userName;
-    await loadQuotes();
   }
+  await loadQuotes();
 };
 
 async function loadQuotes() {
-  const listEl = document.getElementById('quote-list');
-  const tagEl = document.getElementById('user-tag');
-  listEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px;">Loading...</div>';
-  // Update nav tag
-  if (userName) tagEl.textContent = userName;
-  else tagEl.textContent = 'Set name →';
   try {
-    quotes = await sbFetch('quotes?order=created_at.desc');
+    quotes = await sbGet('quotes?order=created_at.desc');
     renderList();
     updateStats();
   } catch(e) {
-    listEl.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px;">⚠️ Could not connect to Supabase.</div>';
-    console.error('Supabase error:', e);
-    // Fall back to empty state so UI still works
+    console.error('Load error:', e);
+    document.getElementById('quote-list').innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px">⚠️ Could not load. Check connection.</div>';
     quotes = [];
     renderList();
     updateStats();
   }
 }
 
+// ── NAME MODAL ──
 function showNameModal() {
-  document.getElementById('name-modal').classList.add('show');
-  setTimeout(() => document.getElementById('name-input').focus(), 200);
+  document.getElementById('name-overlay').classList.add('show');
+  setTimeout(function(){ document.getElementById('name-input').focus(); }, 200);
+}
+
+function changeUser() {
+  document.getElementById('name-input').value = userName;
+  showNameModal();
 }
 
 function saveName() {
-  const val = document.getElementById('name-input').value.trim();
-  if (!val) { 
+  var val = document.getElementById('name-input').value.trim();
+  if (!val) {
     document.getElementById('name-input').style.borderColor = '#dc2626';
-    return; 
+    return;
   }
   userName = val;
-  localStorage.setItem('qs_username', val);
+  localStorage.setItem('qs_user', val);
   document.getElementById('user-tag').textContent = val;
-  document.getElementById('name-modal').classList.remove('show');
+  document.getElementById('name-overlay').classList.remove('show');
   showToast('Welcome, ' + val + '!', 'success');
 }
 
-// ─── QUOTES ───
-async function saveQuoteToSupabase(q) {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/quotes`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=minimal',
-      },
-      body: JSON.stringify(q),
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('Save error:', err);
-      showToast('Save failed', 'error');
-    }
-  } catch(e) {
-    console.error('Save failed:', e);
-    showToast('Save failed — check connection', 'error');
-  }
-}
-
-async function newQuote() {
+// ── NEW QUOTE ──
+function newQuote() {
   if (!userName) { showNameModal(); return; }
-  const id = Date.now().toString();
-  const q = {
-    id,
+  var id = Date.now().toString();
+  var q = {
+    id: id,
     client: '',
     address: '',
     contact: '',
     email: '',
     notes: '',
     floor_area: 0,
-    rooms: { bedroom:3, bathroom:1, ensuite:1, toilet:1, kitchen:1, living:1, garage:1, laundry:1, study:0, outdoor:0 },
+    rooms: {bedroom:3,bathroom:1,ensuite:1,toilet:1,kitchen:1,living:1,garage:1,laundry:1,study:0,outdoor:0},
     location: 'metro',
-    fixed_costs: { site_setup:true, admin:true, council:true, engineering:true },
+    fixed_costs: {site_setup:true,admin:true,council:true,engineering:true},
     status: 'draft',
     created_by: userName,
     created_at: new Date().toISOString(),
@@ -875,8 +417,7 @@ async function newQuote() {
   renderList();
   updateStats();
   openQuote(id);
-  await saveQuoteToSupabase(q);
-  showToast('Quote created ✓', 'success');
+  sbUpsert(q).then(function(){ showToast('Quote created ✓','success'); }).catch(function(e){ showToast('Save failed','error'); console.error(e); });
 }
 
 function openQuote(id) {
@@ -886,397 +427,342 @@ function openQuote(id) {
   renderMain();
 }
 
-function getQuote(id) { return quotes.find(q => q.id === id); }
+function getQ(id) {
+  return quotes.find(function(q){ return q.id === id; });
+}
 
-let saveTimer = null;
+// ── UPDATE QUOTE ──
 function updateQuote(field, value) {
-  const q = getQuote(activeId);
+  var q = getQ(activeId);
   if (!q) return;
-  if (field.includes('.')) {
-    const [a, b] = field.split('.');
-    q[a][b] = value;
+  if (field.indexOf('.') !== -1) {
+    var parts = field.split('.');
+    q[parts[0]][parts[1]] = value;
   } else {
     q[field] = value;
   }
   q.updated_at = new Date().toISOString();
   updateStats();
-  if (field === 'floor_area' || field.startsWith('rooms.') || field === 'location' || field.startsWith('fixed_costs.')) {
-    updateQuotePreview();
-  }
+  var needsPreview = field === 'floor_area' || field.indexOf('rooms.') === 0 || field === 'location' || field.indexOf('fixed_costs.') === 0;
+  if (needsPreview) updatePreview();
   if (field === 'client' || field === 'status') renderList();
-  // Debounce saves — wait 800ms after last keystroke
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => saveQuoteToSupabase(q), 800);
-}
-
-async function deleteQuote(id) {
-  if (!confirm('Delete this quote?')) return;
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/quotes?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-    });
-    if (!res.ok) throw new Error('Delete failed');
-    quotes = quotes.filter(q => q.id !== id);
-    updateStats();
-    renderList();
-    if (activeId === id) { activeId = null; renderMain(); }
-    showToast('Quote deleted', 'success');
-  } catch(e) {
-    showToast('Delete failed', 'error');
-  }
-}
-
-// ─── CALC ───
-function calcQuote(q) {
-  const lines = [];
-  const locMult = LOCATION_MULTIPLIERS[q.location||'metro'].mult;
-
-  if (q.floor_area > 0) {
-    const amt = q.floor_area * rates.base_per_m2 * locMult;
-    lines.push({ name: `Floor Area (${q.floor_area} m²)`, detail: `${q.floor_area} × $${rates.base_per_m2.toLocaleString()}/m²${locMult!==1?' × '+locMult+'x loc':''}`, amount: amt, type:'base' });
-  }
-  ROOM_CONFIG.forEach(r => {
-    const qty = q.rooms[r.key] || 0;
-    if (qty > 0) {
-      const rate = rates[r.key] || 0;
-      const amt = qty * rate * locMult;
-      lines.push({ name: `${r.name} (×${qty})`, detail: `${qty} × $${rate.toLocaleString()}${locMult!==1?' × '+locMult+'x':''}`, amount: amt, type:'room' });
-    }
-  });
-  FIXED_COSTS.forEach(fc => {
-    if (q.fixed_costs && q.fixed_costs[fc.key]) {
-      lines.push({ name: fc.name, detail: 'Fixed cost', amount: fc.amount, type:'fixed' });
-    }
-  });
-
-  const subtotal = lines.filter(l=>l.type!=='fixed').reduce((s,l)=>s+l.amount,0);
-  const fixedTotal = lines.filter(l=>l.type==='fixed').reduce((s,l)=>s+l.amount,0);
-  const total = subtotal + fixedTotal;
-  return { lines, subtotal, fixedTotal, total, locMult };
-}
-
-// ─── RENDER ───
-function renderList() {
-  const search = document.getElementById('search-input').value.toLowerCase();
-  const statusF = document.getElementById('status-filter').value;
-  let filtered = quotes.filter(q => {
-    const matchSearch = !search || (q.client||'').toLowerCase().includes(search) || (q.address||'').toLowerCase().includes(search);
-    const matchStatus = !statusF || q.status === statusF;
-    return matchSearch && matchStatus;
-  });
-  const el = document.getElementById('quote-list');
-  if (filtered.length === 0) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px;">No quotes found</div>';
-    return;
-  }
-  const { lines, total } = activeId ? calcQuote(getQuote(activeId)||{rooms:{}}) : { lines:[], total:0 };
-  el.innerHTML = filtered.map(q => {
-    const calc = calcQuote(q);
-    return `<div class="quote-item ${q.id === activeId ? 'active' : ''}" onclick="openQuote('${q.id}')">
-      <div class="qi-name">${q.client || 'Unnamed Client'}</div>
-      <div class="qi-meta">
-        <span>${q.address || '—'}</span>
-        <span class="qi-amount">$${calc.total.toLocaleString()}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
-        <span class="qi-status status-${q.status}">${q.status.charAt(0).toUpperCase()+q.status.slice(1)}</span>
-        <span style="font-size:10px;color:var(--text3)">${q.created_by}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function updateStats() {
-  document.getElementById('stat-total').textContent = quotes.length;
-  document.getElementById('stat-accepted').textContent = quotes.filter(q=>q.status==='accepted').length;
-  document.getElementById('stat-sent').textContent = quotes.filter(q=>q.status==='sent').length;
-  const totalVal = quotes.reduce((s,q)=>s+calcQuote(q).total, 0);
-  document.getElementById('stat-value').textContent = totalVal >= 1000000
-    ? '$' + (totalVal/1000000).toFixed(1) + 'M'
-    : totalVal >= 1000 ? '$' + Math.round(totalVal/1000) + 'k'
-    : '$' + totalVal.toLocaleString();
-}
-
-function renderMain() {
-  const el = document.getElementById('main-panel');
-  if (!activeId) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No quote selected</h3><p>Create a new quote or select one from the list to get started.</p></div>`;
-    return;
-  }
-  const q = getQuote(activeId);
-  if (!q) return;
-
-  const statusColors = { draft:'status-draft', sent:'status-sent', accepted:'status-accepted', declined:'status-declined' };
-
-  el.innerHTML = `
-  <div class="detail-header">
-    <div>
-      <h1>${q.client || 'Unnamed Client'} <span class="status-badge ${statusColors[q.status]}">${q.status.charAt(0).toUpperCase()+q.status.slice(1)}</span></h1>
-      <div class="meta">Created ${new Date(q.created_at).toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'})} by ${q.created_by} · ID: ${q.id.slice(-6)}</div>
-    </div>
-    <div class="detail-actions">
-      <button class="btn btn-outline" style="background:#011648;color:white;border-color:#011648" onclick="exportBrandedPDF('${q.id}')">↓ PDF</button>
-      <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ CSV</button>
-      <button class="btn btn-danger" onclick="deleteQuote('${q.id}')">Delete</button>
-    </div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab-btn ${activeTab==='form'?'active':''}" onclick="switchTab('form')">Quote Details</button>
-    <button class="tab-btn ${activeTab==='preview'?'active':''}" onclick="switchTab('preview')">Preview & Send</button>
-    <button class="tab-btn ${activeTab==='rates'?'active':''}" onclick="switchTab('rates')">Rate Schedule</button>
-    <button class="tab-btn ${activeTab==='history'?'active':''}" onclick="switchTab('history')">All Jobs</button>
-  </div>
-
-  <!-- TAB: FORM -->
-  <div class="tab-panel ${activeTab==='form'?'active':''}" id="tab-form">
-    <div class="form-card">
-      <h2>Client Details</h2>
-      <div class="sub">Basic information about this job</div>
-      <div class="form-grid">
-        <div class="field">
-          <label>CLIENT NAME</label>
-          <input type="text" value="${q.client||''}" placeholder="John Smith" oninput="updateQuote('client',this.value)">
-        </div>
-        <div class="field">
-          <label>CONTACT NUMBER</label>
-          <input type="text" value="${q.contact||''}" placeholder="04XX XXX XXX" oninput="updateQuote('contact',this.value)">
-        </div>
-        <div class="field">
-          <label>EMAIL</label>
-          <input type="email" value="${q.email||''}" placeholder="john@email.com" oninput="updateQuote('email',this.value)">
-        </div>
-        <div class="field">
-          <label>STATUS</label>
-          <select onchange="updateQuote('status',this.value)">
-            ${['draft','sent','accepted','declined'].map(s=>`<option value="${s}" ${q.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      <div class="form-grid full" style="margin-top:14px">
-        <div class="field">
-          <label>PROJECT ADDRESS</label>
-          <input type="text" value="${q.address||''}" placeholder="12 Oak Street, Sydney NSW 2000" oninput="updateQuote('address',this.value)">
-        </div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <h2>House Specifications</h2>
-      <div class="sub">Enter the size and room breakdown</div>
-      <div class="form-grid" style="margin-bottom:20px">
-        <div class="field">
-          <label>TOTAL FLOOR AREA (m²)</label>
-          <input type="number" value="${q.floor_area||''}" placeholder="e.g. 200" min="0" oninput="updateQuote('floor_area',parseFloat(this.value)||0)">
-          <div class="hint">Base rate applied across entire floor area</div>
-        </div>
-        <div class="field">
-          <label>LOCATION TYPE</label>
-          <select onchange="updateQuote('location',this.value)">
-            ${Object.entries(LOCATION_MULTIPLIERS).map(([k,v])=>`<option value="${k}" ${(q.location||'metro')===k?'selected':''}>${v.label} (×${v.mult})</option>`).join('')}
-          </select>
-          <div class="hint">Adjusts all rates by location multiplier</div>
-        </div>
-      </div>
-      <hr class="section-divider">
-      <div class="section-title">Fixed Costs <span>Tick to Include</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
-        ${FIXED_COSTS.map(fc=>`
-          <label style="display:flex;align-items:center;gap:10px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text2)">
-            <input type="checkbox" ${(q.fixed_costs&&q.fixed_costs[fc.key])?'checked':''} onchange="updateQuote('fixed_costs.${fc.key}',this.checked)" style="accent-color:var(--blue);width:15px;height:15px">
-            <span style="flex:1">${fc.name}</span>
-            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">$${fc.amount.toLocaleString()}</span>
-          </label>
-        `).join('')}
-      </div>
-      <hr class="section-divider">
-      <div class="section-title">Room Breakdown <span>Auto-Priced</span></div>
-      <div class="rooms-grid" id="rooms-grid">
-        ${ROOM_CONFIG.map(r => `
-          <div class="room-item">
-            <span class="room-icon">${r.icon}</span>
-            <span class="room-name">${r.name}</span>
-            <div class="qty-control">
-              <button class="qty-btn" onclick="changeRoom('${r.key}',-1)">−</button>
-              <span class="qty-val" id="qty-${r.key}">${q.rooms[r.key]||0}</span>
-              <button class="qty-btn" onclick="changeRoom('${r.key}',1)">+</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <div class="form-card">
-      <h2>Notes</h2>
-      <div class="sub">Any special requirements or comments</div>
-      <div class="field">
-        <textarea style="background:#f8fafc;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;width:100%;min-height:80px;outline:none;resize:vertical;font-weight:300;line-height:1.6;" placeholder="e.g. Client wants premium finishes in bathrooms, double garage..." oninput="updateQuote('notes',this.value)">${q.notes||''}</textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: PREVIEW -->
-  <div class="tab-panel ${activeTab==='preview'?'active':''}" id="tab-preview">
-    <div class="quote-preview" id="quote-preview-block">
-      ${renderPreviewHTML(q)}
-    </div>
-    <div class="actions-row">
-      <button class="btn btn-primary" onclick="updateQuote('status','sent');renderMain();showToast('Marked as sent','success')">✓ Mark as Sent</button>
-      <button class="btn btn-success" onclick="updateQuote('status','accepted');renderMain();showToast('Marked as accepted ✓','success')">🎉 Mark as Accepted</button>
-      <button class="btn btn-outline" style="background:#011648;color:white;border-color:#011648" onclick="exportBrandedPDF('${q.id}')">↓ SuperSub PDF</button>
-      <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ CSV</button>
-      <button class="btn btn-outline" onclick="exportExcel('${q.id}')">↓ Excel</button>
-    </div>
-  </div>
-
-  <!-- TAB: RATES -->
-  <div class="tab-panel ${activeTab==='rates'?'active':''}" id="tab-rates">
-    <div class="form-card">
-      <h2>Rate Schedule</h2>
-      <div class="sub">Set your prices per item. Changes apply to all new calculations immediately.</div>
-      <div class="section-title">Base Rate</div>
-      <div class="rates-grid" style="margin-bottom:20px">
-        <div class="rate-item">
-          <span class="rate-icon">📐</span>
-          <div class="rate-info"><div class="rate-name">Base rate per m²</div></div>
-          <div class="rate-input-wrap"><span class="rate-prefix">$</span><input type="number" value="${rates.base_per_m2}" oninput="updateRate('base_per_m2',this.value)"></div>
-        </div>
-      </div>
-      <div class="section-title">Room Rates</div>
-      <div class="rates-grid">
-        ${ROOM_CONFIG.map(r=>`
-          <div class="rate-item">
-            <span class="rate-icon">${r.icon}</span>
-            <div class="rate-info"><div class="rate-name">${r.name}</div></div>
-            <div class="rate-input-wrap"><span class="rate-prefix">$</span><input type="number" value="${rates[r.key]||0}" oninput="updateRate('${r.key}',this.value)"></div>
-          </div>
-        `).join('')}
-      </div>
-      <div style="margin-top:16px">
-        <button class="btn btn-primary" onclick="saveRates()">Save Rates</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: HISTORY -->
-  <div class="tab-panel ${activeTab==='history'?'active':''}" id="tab-history">
-    <div class="form-card">
-      <h2>All Jobs</h2>
-      <div class="sub">Complete history of all quotes created</div>
-      <div style="overflow-x:auto">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Client</th>
-              <th>Address</th>
-              <th>Area</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Created By</th>
-              <th>Date</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${quotes.length === 0 ? '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:20px">No quotes yet</td></tr>' :
-              quotes.map(q2 => {
-                const c2 = calcQuote(q2);
-                return `<tr>
-                  <td><a href="#" onclick="openQuote('${q2.id}');return false;" style="color:var(--blue-light);text-decoration:none">${q2.client||'Unnamed'}</a></td>
-                  <td>${q2.address||'—'}</td>
-                  <td class="mono">${q2.floor_area||0} m²</td>
-                  <td class="amount">$${c2.total.toLocaleString()}</td>
-                  <td><span class="qi-status status-${q2.status}">${q2.status}</span></td>
-                  <td>${q2.created_by}</td>
-                  <td class="mono">${new Date(q2.created_at).toLocaleDateString('en-AU')}</td>
-                  <td><button class="btn btn-ghost" onclick="exportCSV('${q2.id}')">CSV</button></td>
-                </tr>`;
-              }).join('')
-            }
-          </tbody>
-        </table>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px">
-        <button class="btn btn-outline" onclick="exportAllCSV()">↓ Export All as CSV</button>
-        <button class="btn btn-outline" onclick="exportAllExcel()">↓ Export All as Excel</button>
-      </div>
-    </div>
-  </div>
-  `;
-}
-
-function renderPreviewHTML(q) {
-  const calc = calcQuote(q);
-  if (calc.lines.length === 0) {
-    return `<p style="color:var(--text3);font-size:13px">Fill in the house details to see the quote preview.</p>`;
-  }
-  const locLabel = LOCATION_MULTIPLIERS[q.location||'metro'].label;
-  const buildLines = calc.lines.filter(l=>l.type!=='fixed');
-  const fixedLines = calc.lines.filter(l=>l.type==='fixed');
-  return `
-    <h2>Quote Summary</h2>
-    <div style="margin:12px 0 16px;font-size:13px;color:var(--text2)">
-      <strong style="color:var(--text)">${q.client||'Client'}</strong><br>
-      ${q.address||'Address not specified'}<br>
-      ${q.email ? `<span style="color:var(--text3)">${q.email}</span><br>` : ''}
-      <span style="color:var(--text3)">Location: ${locLabel} · Prepared by: ${q.created_by} · ${new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</span>
-    </div>
-
-    <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.06em;margin-bottom:6px">BUILD COSTS</div>
-    <div class="line-items">
-      ${buildLines.map(l=>`
-        <div class="line-item">
-          <div><div class="item-name">${l.name}</div><div class="item-detail">${l.detail}</div></div>
-          <div class="item-price">$${Math.round(l.amount).toLocaleString()}</div>
-        </div>
-      `).join('')}
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)">
-      <span>Build Subtotal</span>
-      <span style="font-family:'DM Mono',monospace">$${Math.round(calc.subtotal).toLocaleString()}</span>
-    </div>
-
-    ${fixedLines.length > 0 ? `
-    <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.06em;margin:14px 0 6px">FIXED COSTS</div>
-    <div class="line-items">
-      ${fixedLines.map(l=>`
-        <div class="line-item">
-          <div class="item-name">${l.name}</div>
-          <div class="item-price">$${Math.round(l.amount).toLocaleString()}</div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-
-    ${q.notes ? `<div style="margin:12px 0;padding:12px;background:var(--navy2);border-radius:var(--radius-sm);border-left:3px solid var(--blue);font-size:13px;color:var(--text2)"><strong style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">NOTES</strong>${q.notes}</div>` : ''}
-    <div class="total-row" style="margin-top:12px">
-      <div class="total-label">TOTAL ESTIMATE</div>
-      <div class="total-amount">$${Math.round(calc.total).toLocaleString()}</div>
-    </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--text3)">* Estimate only based on assumed rates. Final pricing subject to site inspection and detailed scope. Rates assume ${locLabel} location.</div>
-  `;
-}
-
-function updateQuotePreview() {
-  const el = document.getElementById('quote-preview-block');
-  if (!el || !activeId) return;
-  el.innerHTML = renderPreviewHTML(getQuote(activeId));
+  saveTimer = setTimeout(function(){
+    sbUpsert(q).catch(function(e){ console.error('Save err:', e); });
+  }, 800);
 }
 
 function changeRoom(key, delta) {
-  const q = getQuote(activeId);
+  var q = getQ(activeId);
   if (!q) return;
-  q.rooms[key] = Math.max(0, (q.rooms[key]||0) + delta);
+  q.rooms[key] = Math.max(0, (q.rooms[key] || 0) + delta);
   q.updated_at = new Date().toISOString();
-  saveQuotes();
-  document.getElementById('qty-'+key).textContent = q.rooms[key];
-  updateQuotePreview();
+  document.getElementById('qty-' + key).textContent = q.rooms[key];
+  updatePreview();
   updateStats();
   renderList();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    sbUpsert(q).catch(function(e){ console.error('Save err:', e); });
+  }, 800);
+}
+
+function deleteQuote(id) {
+  if (!confirm('Delete this quote?')) return;
+  sbDelete(id).then(function(){
+    quotes = quotes.filter(function(q){ return q.id !== id; });
+    updateStats();
+    renderList();
+    if (activeId === id) { activeId = null; renderMain(); }
+    showToast('Quote deleted','success');
+  }).catch(function(){ showToast('Delete failed','error'); });
+}
+
+// ── CALC ──
+function calcQuote(q) {
+  var lines = [];
+  var loc = LOCATIONS[q.location || 'metro'];
+  var m = loc ? loc.mult : 1;
+  if (q.floor_area > 0) {
+    var a = q.floor_area * rates.base_per_m2 * m;
+    lines.push({name:'Floor Area ('+q.floor_area+' m²)', detail:q.floor_area+' × $'+rates.base_per_m2.toLocaleString()+'/m²'+(m!==1?' × '+m+'x':''), amount:a, type:'base'});
+  }
+  ROOM_CONFIG.forEach(function(r){
+    var qty = q.rooms[r.key] || 0;
+    if (qty > 0) {
+      var rate = rates[r.key] || 0;
+      var amt = qty * rate * m;
+      lines.push({name:r.name+' (×'+qty+')', detail:qty+' × $'+rate.toLocaleString()+(m!==1?' × '+m+'x':''), amount:amt, type:'room'});
+    }
+  });
+  FIXED_COSTS.forEach(function(fc){
+    if (q.fixed_costs && q.fixed_costs[fc.key]) {
+      lines.push({name:fc.name, detail:'Fixed cost', amount:fc.amount, type:'fixed'});
+    }
+  });
+  var subtotal = 0, fixedTotal = 0;
+  lines.forEach(function(l){ if (l.type==='fixed') fixedTotal+=l.amount; else subtotal+=l.amount; });
+  return {lines:lines, subtotal:subtotal, fixedTotal:fixedTotal, total:subtotal+fixedTotal, mult:m};
+}
+
+function fmtMoney(n) { return '$' + Math.round(n).toLocaleString(); }
+
+// ── RENDER LIST ──
+function renderList() {
+  var search = (document.getElementById('search-input').value || '').toLowerCase();
+  var statusF = document.getElementById('status-filter').value;
+  var filtered = quotes.filter(function(q){
+    var ms = !search || (q.client||'').toLowerCase().indexOf(search) !== -1 || (q.address||'').toLowerCase().indexOf(search) !== -1;
+    var mst = !statusF || q.status === statusF;
+    return ms && mst;
+  });
+  var el = document.getElementById('quote-list');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px">No quotes found</div>';
+    return;
+  }
+  var html = '';
+  filtered.forEach(function(q){
+    var c = calcQuote(q);
+    var cap = q.status.charAt(0).toUpperCase() + q.status.slice(1);
+    html += '<div class="qi' + (q.id === activeId ? ' active' : '') + '" onclick="openQuote(\'' + q.id + '\')">';
+    html += '<div class="qi-name">' + (q.client || 'Unnamed Client') + '</div>';
+    html += '<div class="qi-addr">' + (q.address || '—') + '</div>';
+    html += '<div class="qi-row"><span class="badge b-' + q.status + '">' + cap + '</span><span class="qi-amount">' + fmtMoney(c.total) + '</span></div>';
+    html += '<div style="text-align:right;margin-top:2px"><span class="qi-by">' + (q.created_by||'') + '</span></div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── UPDATE STATS ──
+function updateStats() {
+  document.getElementById('stat-total').textContent = quotes.length;
+  document.getElementById('stat-accepted').textContent = quotes.filter(function(q){ return q.status==='accepted'; }).length;
+  document.getElementById('stat-sent').textContent = quotes.filter(function(q){ return q.status==='sent'; }).length;
+  var tv = quotes.reduce(function(s,q){ return s + calcQuote(q).total; }, 0);
+  var tvStr = tv >= 1000000 ? '$'+(tv/1000000).toFixed(1)+'M' : tv >= 1000 ? '$'+Math.round(tv/1000)+'k' : fmtMoney(tv);
+  document.getElementById('stat-value').textContent = tvStr;
+}
+
+// ── RENDER MAIN ──
+function renderMain() {
+  var el = document.getElementById('main-panel');
+  if (!activeId) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><h3>No quote selected</h3><p>Create a new quote or select one from the list to get started.</p></div>';
+    return;
+  }
+  var q = getQ(activeId);
+  if (!q) return;
+
+  var statusBadge = '<span class="badge b-' + q.status + '" style="margin-left:10px;vertical-align:middle">' + q.status.charAt(0).toUpperCase() + q.status.slice(1) + '</span>';
+  var dateStr = new Date(q.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+
+  // Build tabs HTML
+  var tabsHtml = '<div class="tabs">';
+  var tabNames = [{id:'form',label:'Quote Details'},{id:'preview',label:'Preview & Send'},{id:'rates',label:'Rate Schedule'},{id:'history',label:'All Jobs'}];
+  tabNames.forEach(function(t){
+    tabsHtml += '<button class="tab-btn' + (activeTab===t.id?' active':'') + '" onclick="switchTab(\'' + t.id + '\')">' + t.label + '</button>';
+  });
+  tabsHtml += '</div>';
+
+  // Build form tab
+  var formHtml = buildFormTab(q);
+  // Build preview tab
+  var previewHtml = buildPreviewTab(q);
+  // Build rates tab
+  var ratesHtml = buildRatesTab();
+  // Build history tab
+  var historyHtml = buildHistoryTab();
+
+  var html = '';
+  html += '<div class="detail-hdr">';
+  html += '<div><h1>' + (q.client || 'Unnamed Client') + statusBadge + '</h1>';
+  html += '<div class="meta">Created ' + dateStr + ' by ' + (q.created_by||'—') + ' · ID: ' + q.id.slice(-6) + '</div></div>';
+  html += '<div class="detail-actions">';
+  html += '<button class="btn btn-navy" onclick="exportBrandedPDF(\'' + q.id + '\')">↓ PDF</button>';
+  html += '<button class="btn btn-outline" onclick="exportCSV(\'' + q.id + '\')">↓ CSV</button>';
+  html += '<button class="btn btn-danger" onclick="deleteQuote(\'' + q.id + '\')">Delete</button>';
+  html += '</div></div>';
+  html += tabsHtml;
+  html += '<div class="tab-panel' + (activeTab==='form'?' active':'') + '" id="tab-form">' + formHtml + '</div>';
+  html += '<div class="tab-panel' + (activeTab==='preview'?' active':'') + '" id="tab-preview">' + previewHtml + '</div>';
+  html += '<div class="tab-panel' + (activeTab==='rates'?' active':'') + '" id="tab-rates">' + ratesHtml + '</div>';
+  html += '<div class="tab-panel' + (activeTab==='history'?' active':'') + '" id="tab-history">' + historyHtml + '</div>';
+
+  el.innerHTML = html;
+}
+
+function buildFormTab(q) {
+  var locOptions = '';
+  Object.keys(LOCATIONS).forEach(function(k){
+    locOptions += '<option value="' + k + '"' + (q.location===k?' selected':'') + '>' + LOCATIONS[k].label + ' (×' + LOCATIONS[k].mult + ')</option>';
+  });
+
+  var statusOptions = '';
+  ['draft','sent','accepted','declined'].forEach(function(s){
+    statusOptions += '<option value="' + s + '"' + (q.status===s?' selected':'') + '>' + s.charAt(0).toUpperCase()+s.slice(1) + '</option>';
+  });
+
+  var fcHtml = '';
+  FIXED_COSTS.forEach(function(fc){
+    var chk = q.fixed_costs && q.fixed_costs[fc.key] ? 'checked' : '';
+    fcHtml += '<label class="fc-item">';
+    fcHtml += '<input type="checkbox" ' + chk + ' onchange="updateQuote(\'fixed_costs.' + fc.key + '\',this.checked)">';
+    fcHtml += '<span class="fc-name">' + fc.name + '</span>';
+    fcHtml += '<span class="fc-amt">$' + fc.amount.toLocaleString() + '</span>';
+    fcHtml += '</label>';
+  });
+
+  var roomsHtml = '';
+  ROOM_CONFIG.forEach(function(r){
+    var qty = q.rooms[r.key] || 0;
+    roomsHtml += '<div class="room-item">';
+    roomsHtml += '<span class="room-icon">' + r.icon + '</span>';
+    roomsHtml += '<span class="room-name">' + r.name + '</span>';
+    roomsHtml += '<div class="qty-ctrl">';
+    roomsHtml += '<button class="qty-btn" onclick="changeRoom(\'' + r.key + '\',-1)">−</button>';
+    roomsHtml += '<span class="qty-val" id="qty-' + r.key + '">' + qty + '</span>';
+    roomsHtml += '<button class="qty-btn" onclick="changeRoom(\'' + r.key + '\',1)">+</button>';
+    roomsHtml += '</div></div>';
+  });
+
+  var h = '';
+  h += '<div class="card"><h2>Client Details</h2><div class="sub">Basic information about this job</div>';
+  h += '<div class="grid2">';
+  h += '<div class="field"><label>CLIENT NAME</label><input type="text" value="' + (q.client||'') + '" placeholder="John Smith" oninput="updateQuote(\'client\',this.value)"></div>';
+  h += '<div class="field"><label>CONTACT NUMBER</label><input type="text" value="' + (q.contact||'') + '" placeholder="04XX XXX XXX" oninput="updateQuote(\'contact\',this.value)"></div>';
+  h += '<div class="field"><label>EMAIL</label><input type="email" value="' + (q.email||'') + '" placeholder="john@email.com" oninput="updateQuote(\'email\',this.value)"></div>';
+  h += '<div class="field"><label>STATUS</label><select onchange="updateQuote(\'status\',this.value)">' + statusOptions + '</select></div>';
+  h += '</div>';
+  h += '<div class="grid1" style="margin-top:14px"><div class="field"><label>PROJECT ADDRESS</label><input type="text" value="' + (q.address||'') + '" placeholder="12 Oak Street, Sydney NSW 2000" oninput="updateQuote(\'address\',this.value)"></div></div>';
+  h += '</div>';
+
+  h += '<div class="card"><h2>House Specifications</h2><div class="sub">Enter the size and room breakdown</div>';
+  h += '<div class="grid2" style="margin-bottom:20px">';
+  h += '<div class="field"><label>TOTAL FLOOR AREA (m²)</label><input type="number" value="' + (q.floor_area||'') + '" placeholder="e.g. 200" min="0" oninput="updateQuote(\'floor_area\',parseFloat(this.value)||0)"><div class="hint">Base rate applied across entire floor area</div></div>';
+  h += '<div class="field"><label>LOCATION TYPE</label><select onchange="updateQuote(\'location\',this.value)">' + locOptions + '</select><div class="hint">Adjusts all rates by location multiplier</div></div>';
+  h += '</div>';
+  h += '<hr class="divider"><div class="sec-title">Fixed Costs <span>Tick to Include</span></div>';
+  h += '<div class="fc-grid" style="margin-bottom:20px">' + fcHtml + '</div>';
+  h += '<hr class="divider"><div class="sec-title">Room Breakdown <span>Auto-Priced</span></div>';
+  h += '<div class="rooms-grid">' + roomsHtml + '</div>';
+  h += '</div>';
+
+  h += '<div class="card"><h2>Notes</h2><div class="sub">Any special requirements or comments</div>';
+  h += '<div class="field"><textarea style="min-height:80px;resize:vertical" placeholder="e.g. Client wants premium finishes in bathrooms..." oninput="updateQuote(\'notes\',this.value)">' + (q.notes||'') + '</textarea></div>';
+  h += '</div>';
+  return h;
+}
+
+function buildPreviewTab(q) {
+  var previewHtml = renderPreviewInner(q);
+  var h = '<div class="preview-card" id="preview-block">' + previewHtml + '</div>';
+  h += '<div class="actions-row">';
+  h += '<button class="btn btn-primary" onclick="updateQuote(\'status\',\'sent\');renderMain();showToast(\'Marked as sent\',\'success\')">✓ Mark as Sent</button>';
+  h += '<button class="btn btn-success" onclick="updateQuote(\'status\',\'accepted\');renderMain();showToast(\'Accepted ✓\',\'success\')">🎉 Mark as Accepted</button>';
+  h += '<button class="btn btn-navy" onclick="exportBrandedPDF(\'' + q.id + '\')">↓ SuperSub PDF</button>';
+  h += '<button class="btn btn-outline" onclick="exportCSV(\'' + q.id + '\')">↓ CSV</button>';
+  h += '<button class="btn btn-outline" onclick="exportExcel(\'' + q.id + '\')">↓ Excel</button>';
+  h += '</div>';
+  return h;
+}
+
+function renderPreviewInner(q) {
+  var calc = calcQuote(q);
+  if (calc.lines.length === 0) return '<p style="color:var(--text3);font-size:13px">Fill in house details to see the quote preview.</p>';
+  var locLabel = LOCATIONS[q.location||'metro'].label;
+  var dateStr = new Date(q.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  var h = '<h2>Quote Summary</h2>';
+  h += '<div style="margin:12px 0 16px;font-size:13px;color:var(--text2)">';
+  h += '<strong style="color:var(--text)">' + (q.client||'Client') + '</strong><br>';
+  h += (q.address||'Address not specified') + '<br>';
+  if (q.email) h += '<span style="color:var(--text3)">' + q.email + '</span><br>';
+  h += '<span style="color:var(--text3)">Location: ' + locLabel + ' · Prepared by: ' + (q.created_by||'—') + ' · ' + dateStr + '</span>';
+  h += '</div>';
+
+  var buildLines = calc.lines.filter(function(l){ return l.type !== 'fixed'; });
+  var fixedLines = calc.lines.filter(function(l){ return l.type === 'fixed'; });
+
+  h += '<div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;margin-bottom:6px">BUILD COSTS</div>';
+  h += '<div>';
+  buildLines.forEach(function(l){
+    h += '<div class="line-item"><div><div class="item-name">' + l.name + '</div><div class="item-detail">' + l.detail + '</div></div><div class="item-price">' + fmtMoney(l.amount) + '</div></div>';
+  });
+  h += '</div>';
+  h += '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)"><span>Build Subtotal</span><span style="font-family:\'DM Mono\',monospace">' + fmtMoney(calc.subtotal) + '</span></div>';
+
+  if (fixedLines.length > 0) {
+    h += '<div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;margin:14px 0 6px">FIXED COSTS</div>';
+    h += '<div>';
+    fixedLines.forEach(function(l){
+      h += '<div class="line-item"><div class="item-name">' + l.name + '</div><div class="item-price">' + fmtMoney(l.amount) + '</div></div>';
+    });
+    h += '</div>';
+  }
+
+  if (q.notes) {
+    h += '<div style="margin:12px 0;padding:12px;background:var(--surface2);border-radius:var(--rs);border-left:3px solid var(--blue);font-size:13px;color:var(--text2)">';
+    h += '<strong style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">NOTES</strong>' + q.notes;
+    h += '</div>';
+  }
+
+  h += '<div class="total-box"><div class="total-label">TOTAL ESTIMATE</div><div class="total-amount">' + fmtMoney(calc.total) + '</div></div>';
+  h += '<div style="margin-top:10px;font-size:11px;color:var(--text3)">* Estimate only. Final pricing subject to site inspection and detailed scope. Rates assume ' + locLabel + ' location.</div>';
+  return h;
+}
+
+function updatePreview() {
+  var el = document.getElementById('preview-block');
+  if (!el || !activeId) return;
+  el.innerHTML = renderPreviewInner(getQ(activeId));
+}
+
+function buildRatesTab() {
+  var h = '<div class="card"><h2>Rate Schedule</h2><div class="sub">Set your prices per item. Changes apply immediately.</div>';
+  h += '<div class="sec-title">Base Rate</div>';
+  h += '<div class="rates-grid" style="margin-bottom:20px">';
+  h += '<div class="rate-item"><span class="rate-icon">📐</span><span class="rate-name">Base rate per m²</span><div class="rate-input-wrap"><span class="rate-prefix">$</span><input type="number" value="' + rates.base_per_m2 + '" oninput="updateRate(\'base_per_m2\',this.value)"></div></div>';
+  h += '</div>';
+  h += '<div class="sec-title">Room Rates</div>';
+  h += '<div class="rates-grid">';
+  ROOM_CONFIG.forEach(function(r){
+    h += '<div class="rate-item"><span class="rate-icon">' + r.icon + '</span><span class="rate-name">' + r.name + '</span><div class="rate-input-wrap"><span class="rate-prefix">$</span><input type="number" value="' + (rates[r.key]||0) + '" oninput="updateRate(\'' + r.key + '\',this.value)"></div></div>';
+  });
+  h += '</div>';
+  h += '<div style="margin-top:16px"><button class="btn btn-primary" onclick="saveRates()">Save Rates</button></div>';
+  h += '</div>';
+  return h;
+}
+
+function buildHistoryTab() {
+  var h = '<div class="card"><h2>All Jobs</h2><div class="sub">Complete history of all quotes</div>';
+  h += '<div style="overflow-x:auto"><table class="history-table"><thead><tr>';
+  h += '<th>Client</th><th>Address</th><th>Area</th><th>Total</th><th>Status</th><th>Created By</th><th>Date</th><th></th>';
+  h += '</tr></thead><tbody>';
+  if (quotes.length === 0) {
+    h += '<tr><td colspan="8" style="color:var(--text3);text-align:center;padding:20px">No quotes yet</td></tr>';
+  } else {
+    quotes.forEach(function(q2){
+      var c2 = calcQuote(q2);
+      h += '<tr>';
+      h += '<td><a href="#" onclick="openQuote(\'' + q2.id + '\');return false;" style="color:var(--blue);text-decoration:none">' + (q2.client||'Unnamed') + '</a></td>';
+      h += '<td>' + (q2.address||'—') + '</td>';
+      h += '<td class="mono">' + (q2.floor_area||0) + ' m²</td>';
+      h += '<td class="amount">' + fmtMoney(c2.total) + '</td>';
+      h += '<td><span class="badge b-' + q2.status + '">' + q2.status + '</span></td>';
+      h += '<td>' + (q2.created_by||'') + '</td>';
+      h += '<td class="mono">' + new Date(q2.created_at).toLocaleDateString('en-AU') + '</td>';
+      h += '<td><button class="btn btn-outline" style="padding:5px 10px;font-size:11px" onclick="exportCSV(\'' + q2.id + '\')">CSV</button></td>';
+      h += '</tr>';
+    });
+  }
+  h += '</tbody></table></div>';
+  h += '<div style="margin-top:16px;display:flex;gap:10px">';
+  h += '<button class="btn btn-outline" onclick="exportAllCSV()">↓ Export All CSV</button>';
+  h += '<button class="btn btn-outline" onclick="exportAllExcel()">↓ Export All Excel</button>';
+  h += '</div></div>';
+  return h;
 }
 
 function switchTab(tab) {
@@ -1284,366 +770,222 @@ function switchTab(tab) {
   renderMain();
 }
 
-function updateRate(key, val) {
-  rates[key] = parseFloat(val) || 0;
-}
-
+// ── RATES ──
+function updateRate(key, val) { rates[key] = parseFloat(val) || 0; }
 function saveRates() {
   localStorage.setItem('qs_rates', JSON.stringify(rates));
-  showToast('Rates saved ✓', 'success');
-  if (activeId) updateQuotePreview();
+  showToast('Rates saved ✓','success');
+  if (activeId) updatePreview();
 }
 
-// ─── EXPORT ───
+// ── EXPORT ──
 function quoteToRows(q) {
-  const calc = calcQuote(q);
-  const rows = [
-    ['QS Quote Tool — Export'],
-    [''],
-    ['Client', q.client||''],
-    ['Address', q.address||''],
-    ['Contact', q.contact||''],
-    ['Email', q.email||''],
-    ['Status', q.status],
-    ['Created By', q.created_by],
-    ['Date', new Date(q.created_at).toLocaleDateString('en-AU')],
-    [''],
-    ['ITEM', 'DETAIL', 'AMOUNT'],
-    ...calc.lines.map(l => [l.name, l.detail, l.amount]),
-    [''],
-    ['TOTAL ESTIMATE', '', calc.total],
-    [''],
-    ['Notes', q.notes||''],
+  var c = calcQuote(q);
+  var rows = [
+    ['SuperSub QS Quote Tool — Export'],[''],
+    ['Client', q.client||''],['Address', q.address||''],
+    ['Contact', q.contact||''],['Email', q.email||''],
+    ['Status', q.status],['Created By', q.created_by||''],
+    ['Date', new Date(q.created_at).toLocaleDateString('en-AU')],[''],
+    ['ITEM','DETAIL','AMOUNT'],
   ];
+  c.lines.forEach(function(l){ rows.push([l.name, l.detail, l.amount]); });
+  rows.push([''],['TOTAL ESTIMATE','',c.total],[''],['Notes', q.notes||'']);
   return rows;
 }
 
 function exportCSV(id) {
-  const q = getQuote(id);
-  if (!q) return;
-  const rows = quoteToRows(q);
-  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  downloadFile(csv, `quote-${(q.client||'client').replace(/\s/g,'-')}-${q.id.slice(-6)}.csv`, 'text/csv');
-  showToast('CSV downloaded ✓', 'success');
+  var q = getQ(id); if (!q) return;
+  var rows = quoteToRows(q);
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  downloadFile(csv, 'quote-'+(q.client||'client').replace(/\s/g,'-')+'-'+q.id.slice(-6)+'.csv', 'text/csv');
+  showToast('CSV downloaded ✓','success');
 }
 
 function exportAllCSV() {
-  const allRows = [['ID','Client','Address','Floor Area','Total','Status','Created By','Date']];
-  quotes.forEach(q => {
-    const c = calcQuote(q);
-    allRows.push([q.id.slice(-6), q.client||'', q.address||'', q.floor_area||0, c.total, q.status, q.created_by, new Date(q.created_at).toLocaleDateString('en-AU')]);
-  });
-  const csv = allRows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  downloadFile(csv, `all-quotes-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
-  showToast('All quotes exported ✓', 'success');
+  var rows = [['ID','Client','Address','Floor Area','Total','Status','Created By','Date']];
+  quotes.forEach(function(q){ var c=calcQuote(q); rows.push([q.id.slice(-6),q.client||'',q.address||'',q.floor_area||0,c.total,q.status,q.created_by||'',new Date(q.created_at).toLocaleDateString('en-AU')]); });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  downloadFile(csv,'all-quotes-'+new Date().toISOString().slice(0,10)+'.csv','text/csv');
+  showToast('All quotes exported ✓','success');
+}
+
+function buildXLS(rows) {
+  var xmlRows = rows.map(function(r){ return '<Row>'+r.map(function(c){ return '<Cell><Data ss:Type="'+(typeof c==='number'?'Number':'String')+'">'+String(c).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</Data></Cell>'; }).join('')+'</Row>'; }).join('');
+  return '<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Quote"><Table>'+xmlRows+'</Table></Worksheet></Workbook>';
 }
 
 function exportExcel(id) {
-  const q = getQuote(id);
-  if (!q) return;
-  const rows = quoteToRows(q);
-  const xml = buildExcelXML(rows);
-  downloadFile(xml, `quote-${(q.client||'client').replace(/\s/g,'-')}-${q.id.slice(-6)}.xls`, 'application/vnd.ms-excel');
-  showToast('Excel downloaded ✓', 'success');
+  var q = getQ(id); if (!q) return;
+  downloadFile(buildXLS(quoteToRows(q)),'quote-'+(q.client||'client').replace(/\s/g,'-')+'-'+q.id.slice(-6)+'.xls','application/vnd.ms-excel');
+  showToast('Excel downloaded ✓','success');
 }
 
 function exportAllExcel() {
-  const allRows = [['ID','Client','Address','Floor Area (m²)','Total ($)','Status','Created By','Date']];
-  quotes.forEach(q => {
-    const c = calcQuote(q);
-    allRows.push([q.id.slice(-6), q.client||'', q.address||'', q.floor_area||0, c.total, q.status, q.created_by, new Date(q.created_at).toLocaleDateString('en-AU')]);
-  });
-  const xml = buildExcelXML(allRows);
-  downloadFile(xml, `all-quotes-${new Date().toISOString().slice(0,10)}.xls`, 'application/vnd.ms-excel');
-  showToast('All quotes exported ✓', 'success');
+  var rows = [['ID','Client','Address','Floor Area (m²)','Total ($)','Status','Created By','Date']];
+  quotes.forEach(function(q){ var c=calcQuote(q); rows.push([q.id.slice(-6),q.client||'',q.address||'',q.floor_area||0,c.total,q.status,q.created_by||'',new Date(q.created_at).toLocaleDateString('en-AU')]); });
+  downloadFile(buildXLS(rows),'all-quotes-'+new Date().toISOString().slice(0,10)+'.xls','application/vnd.ms-excel');
+  showToast('All quotes exported ✓','success');
 }
 
-function buildExcelXML(rows) {
-  const xmlRows = rows.map(r =>
-    `<Row>${r.map(c=>`<Cell><Data ss:Type="${typeof c==='number'?'Number':'String'}">${String(c).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</Data></Cell>`).join('')}</Row>`
-  ).join('');
-  return `<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Quote"><Table>${xmlRows}</Table></Worksheet></Workbook>`;
-}
-
-function downloadFile(content, filename, mimeType) {
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
+function downloadFile(content, filename, mime) {
+  var blob = new Blob([content],{type:mime});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download=filename; a.click();
   URL.revokeObjectURL(url);
 }
 
-function printQuote(id) {
-  const q = getQuote(id);
-  if (!q) return;
-  const html = renderPreviewHTML(q).replace(/var\(--[^)]+\)/g, '#000');
-  const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>Quote - ${q.client||''}</title><style>body{font-family:sans-serif;padding:40px;max-width:700px;margin:0 auto;color:#111}h2{margin-bottom:12px}.line-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}.total-row{display:flex;justify-content:space-between;padding:14px;background:#f0f4ff;border-radius:8px;margin-top:10px;font-weight:bold;font-size:18px}@media print{body{padding:20px}}</style></head><body>${html}</body></html>`);
-  w.document.close();
-  w.print();
-}
-
-
-// ─── BRANDED PDF EXPORT ───
+// ── BRANDED PDF ──
 function exportBrandedPDF(id) {
-  const q = getQuote(id);
+  var q = getQ(id);
   if (!q) return;
-  const calc = calcQuote(q);
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  if (!window.jspdf) { showToast('PDF library loading, try again','error'); return; }
+  var calc = calcQuote(q);
+  var doc = new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var W = 210;
+  var NAVY=[1,22,72], BLUE=[39,108,233], WHITE=[255,255,255], MIST=[240,244,253], MUTED=[120,135,160], LIGHT=[230,236,248];
+  var fmt = function(n){ return '$'+Math.round(n).toLocaleString(); };
+  var dateStr = new Date(q.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  var quoteId = 'EST-'+q.id.slice(-6).toUpperCase();
+  var y = 0;
 
-  const W = 210; // A4 width mm
-  const NAVY  = [1, 22, 72];
-  const BLUE  = [39, 108, 233];
-  const WHITE = [255, 255, 255];
-  const MIST  = [240, 244, 253];
-  const MUTED = [120, 135, 160];
-  const LIGHT = [230, 236, 248];
+  // Header
+  doc.setFillColor.apply(doc,NAVY); doc.rect(0,0,W,36,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor.apply(doc,WHITE);
+  doc.text('Super',14,18);
+  var sw = doc.getTextWidth('Super');
+  doc.setTextColor.apply(doc,BLUE); doc.text('Sub',14+sw,18);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(180,195,220);
+  doc.text('BUILD SMARTER. LIVE BETTER.',14,24);
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(180,195,220);
+  doc.text('ESTIMATE',W-14,13,{align:'right'});
+  doc.setFontSize(12); doc.setTextColor.apply(doc,WHITE);
+  doc.text(quoteId,W-14,20,{align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(180,195,220);
+  doc.text(dateStr,W-14,26,{align:'right'});
 
-  const fmt = n => '$' + Math.round(n).toLocaleString();
-  const dateStr = new Date(q.created_at).toLocaleDateString('en-AU', {day:'numeric',month:'long',year:'numeric'});
-  const quoteId = 'EST-' + q.id.slice(-6).toUpperCase();
-  let y = 0;
-
-  // ── HEADER BLOCK ──
-  doc.setFillColor(...NAVY);
-  doc.rect(0, 0, W, 36, 'F');
-
-  // Logo text "Super" + "Sub" accent
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.setTextColor(...WHITE);
-  doc.text('Super', 14, 18);
-  const superW = doc.getTextWidth('Super');
-  doc.setTextColor(...BLUE);
-  doc.text('Sub', 14 + superW, 18);
-
-  // Tagline
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(180, 195, 220);
-  doc.text('BUILD SMARTER. LIVE BETTER.', 14, 24);
-
-  // Quote ID + date top right
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(180, 195, 220);
-  doc.text('ESTIMATE', W - 14, 13, { align: 'right' });
-  doc.setFontSize(12);
-  doc.setTextColor(...WHITE);
-  doc.text(quoteId, W - 14, 20, { align: 'right' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(180, 195, 220);
-  doc.text(dateStr, W - 14, 26, { align: 'right' });
-
-  // ── BLUE ACCENT BAR ──
-  doc.setFillColor(...BLUE);
-  doc.rect(0, 36, W, 2, 'F');
+  // Blue bar
+  doc.setFillColor.apply(doc,BLUE); doc.rect(0,36,W,2,'F');
   y = 38;
 
-  // ── CLIENT SECTION ──
-  doc.setFillColor(...MIST);
-  doc.rect(0, y, W, 32, 'F');
-
-  // Prepared for
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
-  doc.setTextColor(...MUTED);
-  doc.text('PREPARED FOR', 14, y + 8);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(...NAVY);
-  doc.text(q.client || 'Client', 14, y + 16);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...MUTED);
-  let clientY = y + 22;
-  if (q.address) { doc.text(q.address, 14, clientY); clientY += 5; }
-  if (q.email)   { doc.text(q.email, 14, clientY); }
-
-  // Right meta
-  const metaX = W - 14;
-  let mY = y + 9;
-  const metaItems = [
-    ['Prepared by', q.created_by || '—'],
-    ['Location',    (LOCATION_MULTIPLIERS[q.location||'metro']||{label:'Metro'}).label],
-    ['Floor Area',  (q.floor_area||0) + ' m²'],
-    ['Date',        dateStr],
-  ];
-  metaItems.forEach(([k,v]) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(...MUTED);
-    doc.text(k, metaX - 28, mY, { align: 'right' });
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...NAVY);
-    doc.text(v, metaX, mY, { align: 'right' });
-    mY += 5.5;
+  // Client section
+  doc.setFillColor.apply(doc,MIST); doc.rect(0,y,W,32,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc,MUTED);
+  doc.text('PREPARED FOR',14,y+8);
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor.apply(doc,NAVY);
+  doc.text(q.client||'Client',14,y+16);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor.apply(doc,MUTED);
+  var cy = y+22;
+  if (q.address) { doc.text(q.address,14,cy); cy+=5; }
+  if (q.email)   { doc.text(q.email,14,cy); }
+  var metaX = W-14, mY = y+9;
+  var metas = [['Prepared by',q.created_by||'—'],['Location',(LOCATIONS[q.location||'metro']||{label:'Metro'}).label],['Floor Area',(q.floor_area||0)+' m²'],['Date',dateStr]];
+  metas.forEach(function(m){
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor.apply(doc,MUTED);
+    doc.text(m[0],metaX-28,mY,{align:'right'});
+    doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,NAVY);
+    doc.text(m[1],metaX,mY,{align:'right'});
+    mY+=5.5;
   });
+  y+=34;
+  doc.setDrawColor.apply(doc,LIGHT); doc.setLineWidth(0.3); doc.line(0,y,W,y);
+  y+=8;
 
-  y += 34;
-
-  // Border under client section
-  doc.setDrawColor(...LIGHT);
-  doc.setLineWidth(0.3);
-  doc.line(0, y, W, y);
-  y += 8;
-
-  // ── SECTION HELPER ──
-  function sectionHeading(title) {
-    // blue left bar
-    doc.setFillColor(...BLUE);
-    doc.rect(14, y - 1, 2, 7, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(...MUTED);
-    doc.text(title.toUpperCase(), 19, y + 5);
-    // underline
-    doc.setDrawColor(...LIGHT);
-    doc.setLineWidth(0.2);
-    doc.line(14, y + 7, W - 14, y + 7);
-    y += 11;
+  function secHeading(title) {
+    doc.setFillColor.apply(doc,BLUE); doc.rect(14,y-1,2,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor.apply(doc,MUTED);
+    doc.text(title.toUpperCase(),19,y+5);
+    doc.setDrawColor.apply(doc,LIGHT); doc.setLineWidth(0.2); doc.line(14,y+7,W-14,y+7);
+    y+=11;
+  }
+  function tblHeader() {
+    doc.setFillColor(248,250,252); doc.rect(14,y,W-28,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc,MUTED);
+    doc.text('ITEM',17,y+5); doc.text('CALCULATION',100,y+5); doc.text('AMOUNT',W-17,y+5,{align:'right'});
+    doc.setDrawColor.apply(doc,LIGHT); doc.setLineWidth(0.2); doc.line(14,y+7,W-14,y+7);
+    y+=9;
+  }
+  function tblRow(name,detail,amount,shade) {
+    if (shade) { doc.setFillColor(252,253,255); doc.rect(14,y-1,W-28,8,'F'); }
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor.apply(doc,NAVY);
+    doc.text(name,17,y+4);
+    doc.setFontSize(7); doc.setTextColor.apply(doc,MUTED); doc.text(detail,100,y+4);
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor.apply(doc,NAVY);
+    doc.text(fmt(amount),W-17,y+4,{align:'right'});
+    doc.setDrawColor.apply(doc,LIGHT); doc.setLineWidth(0.15); doc.line(14,y+7,W-14,y+7);
+    y+=8;
+  }
+  function subtotalRow(label,amount) {
+    doc.setFillColor.apply(doc,MIST); doc.rect(14,y,W-28,8,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    doc.setTextColor.apply(doc,MUTED); doc.text(label,W-55,y+5.5,{align:'right'});
+    doc.setTextColor.apply(doc,NAVY); doc.text(fmt(amount),W-17,y+5.5,{align:'right'});
+    y+=10;
   }
 
-  function tableHeader() {
-    doc.setFillColor(248, 250, 252);
-    doc.rect(14, y, W - 28, 7, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.5);
-    doc.setTextColor(...MUTED);
-    doc.text('ITEM', 17, y + 5);
-    doc.text('CALCULATION', 100, y + 5);
-    doc.text('AMOUNT', W - 17, y + 5, { align: 'right' });
-    doc.setDrawColor(...LIGHT);
-    doc.setLineWidth(0.2);
-    doc.line(14, y + 7, W - 14, y + 7);
-    y += 9;
+  // Build costs
+  var buildLines = calc.lines.filter(function(l){ return l.type!=='fixed'; });
+  var fixedLines = calc.lines.filter(function(l){ return l.type==='fixed'; });
+  secHeading('Build Costs'); tblHeader();
+  buildLines.forEach(function(l,i){ tblRow(l.name,l.detail,l.amount,i%2===1); });
+  y+=1; subtotalRow('Build Subtotal',calc.subtotal); y+=4;
+
+  if (fixedLines.length>0) {
+    secHeading('Fixed Costs'); tblHeader();
+    fixedLines.forEach(function(l,i){ tblRow(l.name,'Fixed cost',l.amount,i%2===1); });
+    y+=1; subtotalRow('Fixed Subtotal',calc.fixedTotal); y+=4;
   }
 
-  function tableRow(name, detail, amount, shade) {
-    if (shade) { doc.setFillColor(252, 253, 255); doc.rect(14, y - 1, W - 28, 8, 'F'); }
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...NAVY);
-    doc.text(name, 17, y + 4);
-    doc.setFontSize(7);
-    doc.setTextColor(...MUTED);
-    doc.text(detail, 100, y + 4);
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...NAVY);
-    doc.text(fmt(amount), W - 17, y + 4, { align: 'right' });
-    doc.setDrawColor(...LIGHT);
-    doc.setLineWidth(0.15);
-    doc.line(14, y + 7, W - 14, y + 7);
-    y += 8;
-  }
+  // Total box
+  doc.setFillColor.apply(doc,NAVY); doc.roundedRect(14,y,W-28,18,3,3,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(180,195,220);
+  doc.text('TOTAL ESTIMATE (INC. ALL COSTS)',20,y+7);
+  doc.setFontSize(16); doc.setTextColor.apply(doc,WHITE);
+  doc.text(fmt(calc.total),W-20,y+12,{align:'right'});
+  y+=24;
 
-  function subtotalRow(label, amount) {
-    doc.setFillColor(...MIST);
-    doc.rect(14, y, W - 28, 8, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...MUTED);
-    doc.text(label, W - 55, y + 5.5, { align: 'right' });
-    doc.setTextColor(...NAVY);
-    doc.text(fmt(amount), W - 17, y + 5.5, { align: 'right' });
-    y += 10;
-  }
-
-  // ── BUILD COSTS ──
-  sectionHeading('Build Costs');
-  tableHeader();
-  const buildLines = calc.lines.filter(l => l.type !== 'fixed');
-  buildLines.forEach((l, i) => tableRow(l.name, l.detail, l.amount, i % 2 === 1));
-  y += 1;
-  subtotalRow('Build Subtotal', calc.subtotal);
-  y += 4;
-
-  // ── FIXED COSTS ──
-  const fixedLines = calc.lines.filter(l => l.type === 'fixed');
-  if (fixedLines.length > 0) {
-    sectionHeading('Fixed Costs');
-    tableHeader();
-    fixedLines.forEach((l, i) => tableRow(l.name, 'Fixed cost', l.amount, i % 2 === 1));
-    y += 1;
-    subtotalRow('Fixed Subtotal', calc.fixedTotal);
-    y += 4;
-  }
-
-  // ── TOTAL BOX ──
-  doc.setFillColor(...NAVY);
-  doc.roundedRect(14, y, W - 28, 18, 3, 3, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  doc.setTextColor(180, 195, 220);
-  doc.text('TOTAL ESTIMATE (INC. ALL COSTS)', 20, y + 7);
-  doc.setFontSize(16);
-  doc.setTextColor(...WHITE);
-  doc.text(fmt(calc.total), W - 20, y + 12, { align: 'right' });
-  y += 24;
-
-  // ── NOTES ──
+  // Notes
   if (q.notes) {
-    doc.setFillColor(...MIST);
-    doc.rect(14, y, W - 28, 16, 'F');
-    doc.setFillColor(...BLUE);
-    doc.rect(14, y, 3, 16, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.5);
-    doc.setTextColor(...MUTED);
-    doc.text('NOTES', 20, y + 6);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...NAVY);
-    const noteLines = doc.splitTextToSize(q.notes, W - 42);
-    doc.text(noteLines, 20, y + 12);
-    y += 20;
+    doc.setFillColor.apply(doc,MIST); doc.rect(14,y,W-28,16,'F');
+    doc.setFillColor.apply(doc,BLUE); doc.rect(14,y,3,16,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc,MUTED);
+    doc.text('NOTES',20,y+6);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor.apply(doc,NAVY);
+    var noteLines = doc.splitTextToSize(q.notes,W-42);
+    doc.text(noteLines,20,y+12);
+    y+=20;
   }
 
-  // ── DISCLAIMER ──
-  y += 2;
-  doc.setFillColor(248, 249, 252);
-  doc.setDrawColor(...LIGHT);
-  doc.setLineWidth(0.2);
-  doc.roundedRect(14, y, W - 28, 14, 2, 2, 'FD');
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.setTextColor(...MUTED);
-  const disclaimer = 'This estimate is prepared based on assumed industry rates and the specifications provided. All figures are indicative only and subject to change following site inspection, detailed scope confirmation, and final material and labour pricing. SuperSub accepts no liability for variations between this estimate and final contract pricing.';
-  const dLines = doc.splitTextToSize(disclaimer, W - 36);
-  doc.text(dLines, 17, y + 5);
-  y += 18;
+  // Disclaimer
+  y+=2;
+  doc.setFillColor(248,249,252); doc.setDrawColor.apply(doc,LIGHT); doc.setLineWidth(0.2);
+  doc.roundedRect(14,y,W-28,14,2,2,'FD');
+  doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc,MUTED);
+  var disc = 'This estimate is prepared based on assumed industry rates and specifications provided. All figures are indicative only and subject to change following site inspection, detailed scope confirmation, and final pricing. SuperSub accepts no liability for variations between this estimate and final contract pricing.';
+  doc.text(doc.splitTextToSize(disc,W-36),17,y+5);
+  y+=18;
 
-  // ── FOOTER ──
-  const footerY = 282;
-  doc.setFillColor(...NAVY);
-  doc.rect(0, footerY, W, 15, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...WHITE);
-  doc.text('SuperSub', 14, footerY + 6);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(180, 195, 220);
-  doc.text(' · supersub.co.nz · New Zealand's Modern Home Solution', 14 + doc.getTextWidth('SuperSub'), footerY + 6);
+  // Footer
+  doc.setFillColor.apply(doc,NAVY); doc.rect(0,282,W,15,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor.apply(doc,WHITE);
+  doc.text('SuperSub',14,289);
+  doc.setFont('helvetica','normal'); doc.setTextColor(180,195,220);
+  doc.text(' · supersub.co.nz · New Zealand\'s Modern Home Solution',14+doc.getTextWidth('SuperSub'),289);
   doc.setFontSize(7);
-  doc.text('Estimate ' + quoteId + '  ·  Generated ' + dateStr, W - 14, footerY + 6, { align: 'right' });
+  doc.text('Estimate '+quoteId+' · Generated '+dateStr,W-14,289,{align:'right'});
 
-  // Save
-  const filename = `SuperSub-Quote-${(q.client||'Client').replace(/\s+/g,'-')}-${quoteId}.pdf`;
-  doc.save(filename);
-  showToast('PDF downloaded ✓', 'success');
+  var fname = 'SuperSub-Quote-'+(q.client||'Client').replace(/\s+/g,'-')+'-'+quoteId+'.pdf';
+  doc.save(fname);
+  showToast('PDF downloaded ✓','success');
 }
 
-// ─── TOAST ───
-function showToast(msg, type='success') {
-  const el = document.getElementById('toast');
+// ── TOAST ──
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
   el.textContent = msg;
-  el.className = `toast ${type} show`;
-  setTimeout(() => el.classList.remove('show'), 2800);
+  el.className = 'toast ' + (type||'success') + ' show';
+  setTimeout(function(){ el.classList.remove('show'); }, 2800);
 }
 </script>
 </body>
