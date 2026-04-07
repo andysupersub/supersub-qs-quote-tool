@@ -703,11 +703,32 @@ nav {
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── SUPABASE CONFIG ───
+const SUPABASE_URL = 'https://wljoyrwjculthelfgzth.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indsam95cndqY3VsdGhlbGZnenRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODM1MTEsImV4cCI6MjA5MDE1OTUxMX0.8f3NV96YP9jOj__W9XiEDIiJ2gFlyBK53wnQJ1Tp6X0';
+
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || 'return=representation',
+      ...(options.headers||{}),
+    },
+  });
+  if (!res.ok) { const e = await res.text(); throw new Error(e); }
+  const t = await res.text();
+  return t ? JSON.parse(t) : [];
+}
+
 // ─── STATE ───
 let userName = localStorage.getItem('qs_username') || '';
-let quotes = JSON.parse(localStorage.getItem('qs_quotes') || '[]');
+let quotes = [];
 let activeId = null;
 let activeTab = 'form';
+let isSaving = false;
 
 // ── ASSUMED RATES (AU construction, mid-range spec) ──
 // Base: ~$1,800/m² is typical AU mid-range new build (2024)
@@ -756,15 +777,27 @@ const LOCATION_MULTIPLIERS = {
 };
 
 // ─── INIT ───
-window.onload = () => {
+window.onload = async () => {
   if (!userName) {
     showNameModal();
   } else {
     document.getElementById('user-tag').textContent = userName;
   }
-  renderList();
-  updateStats();
+  await loadQuotes();
 };
+
+async function loadQuotes() {
+  const listEl = document.getElementById('quote-list');
+  listEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px;">Loading...</div>';
+  try {
+    quotes = await sbFetch('quotes?order=created_at.desc');
+    renderList();
+    updateStats();
+  } catch(e) {
+    listEl.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px;">Failed to load. Check Supabase key.</div>';
+    console.error(e);
+  }
+}
 
 function showNameModal() {
   document.getElementById('name-modal').classList.add('show');
@@ -778,14 +811,26 @@ function saveName() {
   localStorage.setItem('qs_username', val);
   document.getElementById('user-tag').textContent = val;
   document.getElementById('name-modal').classList.remove('show');
+  loadQuotes();
 }
 
 // ─── QUOTES ───
-function saveQuotes() {
-  localStorage.setItem('qs_quotes', JSON.stringify(quotes));
+async function saveQuoteToSupabase(q) {
+  // upsert into Supabase
+  try {
+    await sbFetch('quotes', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(q),
+    });
+  } catch(e) {
+    console.error('Save failed:', e);
+    showToast('Save failed — check connection', 'error');
+  }
 }
 
-function newQuote() {
+async function newQuote() {
   if (!userName) { showNameModal(); return; }
   const id = Date.now().toString();
   const q = {
@@ -805,10 +850,11 @@ function newQuote() {
     updated_at: new Date().toISOString(),
   };
   quotes.unshift(q);
-  saveQuotes();
   renderList();
   updateStats();
   openQuote(id);
+  await saveQuoteToSupabase(q);
+  showToast('Quote created ✓', 'success');
 }
 
 function openQuote(id) {
@@ -820,6 +866,7 @@ function openQuote(id) {
 
 function getQuote(id) { return quotes.find(q => q.id === id); }
 
+let saveTimer = null;
 function updateQuote(field, value) {
   const q = getQuote(activeId);
   if (!q) return;
@@ -830,27 +877,28 @@ function updateQuote(field, value) {
     q[field] = value;
   }
   q.updated_at = new Date().toISOString();
-  saveQuotes();
   updateStats();
-  if (field === 'floor_area' || field.startsWith('rooms.')) {
+  if (field === 'floor_area' || field.startsWith('rooms.') || field === 'location' || field.startsWith('fixed_costs.')) {
     updateQuotePreview();
   }
-  if (field === 'client' || field === 'status') {
-    renderList();
-  }
+  if (field === 'client' || field === 'status') renderList();
+  // Debounce saves — wait 800ms after last keystroke
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveQuoteToSupabase(q), 800);
 }
 
-function deleteQuote(id) {
+async function deleteQuote(id) {
   if (!confirm('Delete this quote?')) return;
-  quotes = quotes.filter(q => q.id !== id);
-  saveQuotes();
-  updateStats();
-  renderList();
-  if (activeId === id) {
-    activeId = null;
-    renderMain();
+  try {
+    await sbFetch(`quotes?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal', headers:{'Prefer':'return=minimal'} });
+    quotes = quotes.filter(q => q.id !== id);
+    updateStats();
+    renderList();
+    if (activeId === id) { activeId = null; renderMain(); }
+    showToast('Quote deleted', 'success');
+  } catch(e) {
+    showToast('Delete failed', 'error');
   }
-  showToast('Quote deleted', 'success');
 }
 
 // ─── CALC ───
