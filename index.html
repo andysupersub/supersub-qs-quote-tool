@@ -8,20 +8,20 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy: #0a1628;
-  --navy2: #122040;
+  --navy: #f0f4fa;
+  --navy2: #ffffff;
   --blue: #2563eb;
   --blue-light: #3b82f6;
-  --green: #10b981;
-  --amber: #f59e0b;
-  --red: #ef4444;
-  --surface: #111827;
-  --surface2: #1a2540;
-  --surface3: #1f2d4a;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #f1f5f9;
-  --text2: #94a3b8;
+  --green: #059669;
+  --amber: #d97706;
+  --red: #dc2626;
+  --surface: #f8fafc;
+  --surface2: #ffffff;
+  --surface3: #f1f5f9;
+  --border: rgba(15,23,42,0.09);
+  --border2: rgba(15,23,42,0.15);
+  --text: #0f172a;
+  --text2: #334155;
   --text3: #64748b;
   --radius: 12px;
   --radius-sm: 8px;
@@ -39,8 +39,9 @@ body {
 
 /* ─── NAV ─── */
 nav {
-  background: var(--navy2);
+  background: #ffffff;
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(15,23,42,0.06);
   height: 58px;
   display: flex;
   align-items: center;
@@ -75,7 +76,7 @@ nav {
   font-size: 11px;
   font-weight: 500;
   color: var(--text3);
-  background: var(--surface2);
+  background: var(--surface3);
   border: 1px solid var(--border);
   padding: 4px 10px;
   border-radius: 20px;
@@ -104,7 +105,7 @@ nav {
 
 /* ─── SIDEBAR ─── */
 .sidebar {
-  background: var(--navy2);
+  background: #f8fafc;
   border-right: 1px solid var(--border);
   padding: 20px 0;
   overflow-y: auto;
@@ -132,10 +133,11 @@ nav {
   margin-bottom: 8px;
 }
 .stat-box {
-  background: var(--surface2);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
 }
 .stat-box .val {
   font-size: 20px;
@@ -150,7 +152,7 @@ nav {
   margin-top: 2px;
 }
 .stat-box.green .val { color: var(--green); }
-.stat-box.blue .val { color: var(--blue-light); }
+.stat-box.blue .val { color: var(--blue); }
 .stat-box.amber .val { color: var(--amber); }
 
 .filter-group { margin-bottom: 16px; }
@@ -163,8 +165,8 @@ nav {
 }
 .filter-input, .filter-select {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
@@ -174,7 +176,7 @@ nav {
   transition: border-color 0.15s;
 }
 .filter-input:focus, .filter-select:focus { border-color: var(--blue); }
-.filter-select option { background: var(--navy2); }
+.filter-select option { background: #ffffff; color: var(--text); }
 
 .quote-list { padding: 0 8px; }
 .quote-item {
@@ -185,8 +187,8 @@ nav {
   margin-bottom: 4px;
   transition: all 0.15s;
 }
-.quote-item:hover { background: var(--surface2); border-color: var(--border); }
-.quote-item.active { background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.3); }
+.quote-item:hover { background: #ffffff; border-color: var(--border2); }
+.quote-item.active { background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.25); }
 .qi-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
 .qi-meta { font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; }
 .qi-amount { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); }
@@ -225,11 +227,12 @@ nav {
 
 /* ─── FORM CARD ─── */
 .form-card {
-  background: var(--surface2);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
 }
 .form-card h2 {
   font-size: 15px;
@@ -258,8 +261,8 @@ nav {
   letter-spacing: 0.02em;
 }
 .field input, .field select {
-  background: var(--navy2);
-  border: 1px solid var(--border);
+  background: #f8fafc;
+  border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
@@ -269,7 +272,7 @@ nav {
   transition: border-color 0.15s;
   width: 100%;
 }
-.field input:focus, .field select:focus { border-color: var(--blue); }
+.field input:focus, .field select:focus { border-color: var(--blue); background: #fff; }
 .field select option { background: var(--navy2); }
 .field .hint { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
@@ -304,7 +307,7 @@ nav {
   gap: 10px;
 }
 .room-item {
-  background: var(--navy2);
+  background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
@@ -326,18 +329,18 @@ nav {
 }
 .qty-btn {
   width: 26px; height: 26px;
-  background: var(--surface3);
+  background: #ffffff;
   border: 1px solid var(--border2);
   border-radius: 6px;
   color: var(--text);
   font-size: 16px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.1s;
-  font-weight: 300;
+  transition: all 0.1s;
+  font-weight: 400;
   line-height: 1;
 }
-.qty-btn:hover { background: var(--blue); border-color: var(--blue); }
+.qty-btn:hover { background: var(--blue); border-color: var(--blue); color: white; }
 .qty-val {
   font-family: 'DM Mono', monospace;
   font-size: 14px;
@@ -349,11 +352,12 @@ nav {
 
 /* ─── QUOTE PREVIEW ─── */
 .quote-preview {
-  background: var(--surface2);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
 }
 .quote-preview h2 {
   font-size: 15px;
@@ -379,13 +383,13 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 14px 16px;
-  background: rgba(37,99,235,0.1);
-  border: 1px solid rgba(37,99,235,0.2);
+  background: rgba(37,99,235,0.06);
+  border: 1px solid rgba(37,99,235,0.18);
   border-radius: var(--radius-sm);
   margin-top: 8px;
 }
 .total-label { font-size: 14px; font-weight: 600; color: var(--text); }
-.total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 600; color: var(--blue-light); letter-spacing: -0.03em; }
+.total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 600; color: var(--blue); letter-spacing: -0.03em; }
 
 /* ─── ACTIONS ─── */
 .actions-row {
@@ -423,12 +427,12 @@ nav {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: var(--surface3);
-  border: 1px solid var(--border2);
+  background: #1e293b;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius);
   padding: 12px 18px;
   font-size: 13px;
-  color: var(--text);
+  color: #f1f5f9;
   z-index: 9999;
   opacity: 0;
   transform: translateY(10px);
@@ -442,7 +446,7 @@ nav {
 /* ─── NAME MODAL ─── */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(15,23,42,0.4);
   backdrop-filter: blur(4px);
   z-index: 500;
   display: flex; align-items: center; justify-content: center;
@@ -450,19 +454,20 @@ nav {
 }
 .modal-overlay.show { opacity: 1; pointer-events: all; }
 .modal-box {
-  background: var(--surface2);
+  background: #ffffff;
   border: 1px solid var(--border2);
   border-radius: var(--radius);
   padding: 28px 32px;
   width: 360px;
+  box-shadow: 0 20px 60px rgba(15,23,42,0.15);
   transform: scale(0.96); transition: transform 0.2s;
 }
 .modal-overlay.show .modal-box { transform: scale(1); }
-.modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
 .modal-box p { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
 .modal-box input {
   width: 100%;
-  background: var(--navy2);
+  background: #f8fafc;
   border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   color: var(--text);
@@ -472,7 +477,7 @@ nav {
   outline: none;
   margin-bottom: 14px;
 }
-.modal-box input:focus { border-color: var(--blue); }
+.modal-box input:focus { border-color: var(--blue); background: #fff; }
 
 /* ─── DETAIL VIEW ─── */
 .detail-header {
@@ -511,7 +516,7 @@ nav {
   gap: 10px;
 }
 .rate-item {
-  background: var(--navy2);
+  background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
@@ -525,8 +530,8 @@ nav {
 .rate-item .rate-input-wrap { display: flex; align-items: center; gap: 4px; }
 .rate-item .rate-prefix { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
 .rate-item input {
-  background: var(--surface2);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1px solid var(--border2);
   border-radius: 6px;
   color: var(--text);
   font-family: 'DM Mono', monospace;
@@ -574,7 +579,8 @@ nav {
   color: var(--text3);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border2);
+  background: #f8fafc;
 }
 .history-table td {
   padding: 10px 12px;
@@ -582,7 +588,7 @@ nav {
   color: var(--text2);
 }
 .history-table tr:last-child td { border-bottom: none; }
-.history-table tr:hover td { background: rgba(255,255,255,0.02); }
+.history-table tr:hover td { background: #f8fafc; }
 .history-table .mono { font-family: 'DM Mono', monospace; color: var(--text); }
 .history-table .amount { font-family: 'DM Mono', monospace; color: var(--green); font-weight: 500; }
 
@@ -1031,7 +1037,7 @@ function renderMain() {
       <h2>Notes</h2>
       <div class="sub">Any special requirements or comments</div>
       <div class="field">
-        <textarea style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;width:100%;min-height:80px;outline:none;resize:vertical;font-weight:300;line-height:1.6;" placeholder="e.g. Client wants premium finishes in bathrooms, double garage..." oninput="updateQuote('notes',this.value)">${q.notes||''}</textarea>
+        <textarea style="background:#f8fafc;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;width:100%;min-height:80px;outline:none;resize:vertical;font-weight:300;line-height:1.6;" placeholder="e.g. Client wants premium finishes in bathrooms, double garage..." oninput="updateQuote('notes',this.value)">${q.notes||''}</textarea>
       </div>
     </div>
   </div>
