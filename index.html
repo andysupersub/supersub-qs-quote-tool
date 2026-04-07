@@ -607,6 +607,7 @@ nav {
   .rates-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -990,8 +991,8 @@ function renderMain() {
       <div class="meta">Created ${new Date(q.created_at).toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'})} by ${q.created_by} · ID: ${q.id.slice(-6)}</div>
     </div>
     <div class="detail-actions">
+      <button class="btn btn-outline" style="background:#011648;color:white;border-color:#011648" onclick="exportBrandedPDF('${q.id}')">↓ PDF</button>
       <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ CSV</button>
-      <button class="btn btn-outline" onclick="exportExcel('${q.id}')">↓ Excel</button>
       <button class="btn btn-danger" onclick="deleteQuote('${q.id}')">Delete</button>
     </div>
   </div>
@@ -1098,9 +1099,9 @@ function renderMain() {
     <div class="actions-row">
       <button class="btn btn-primary" onclick="updateQuote('status','sent');renderMain();showToast('Marked as sent','success')">✓ Mark as Sent</button>
       <button class="btn btn-success" onclick="updateQuote('status','accepted');renderMain();showToast('Marked as accepted ✓','success')">🎉 Mark as Accepted</button>
-      <button class="btn btn-outline" onclick="printQuote('${q.id}')">🖨 Print Quote</button>
-      <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ Export CSV</button>
-      <button class="btn btn-outline" onclick="exportExcel('${q.id}')">↓ Export Excel</button>
+      <button class="btn btn-outline" style="background:#011648;color:white;border-color:#011648" onclick="exportBrandedPDF('${q.id}')">↓ SuperSub PDF</button>
+      <button class="btn btn-outline" onclick="exportCSV('${q.id}')">↓ CSV</button>
+      <button class="btn btn-outline" onclick="exportExcel('${q.id}')">↓ Excel</button>
     </div>
   </div>
 
@@ -1351,6 +1352,261 @@ function printQuote(id) {
   w.document.write(`<html><head><title>Quote - ${q.client||''}</title><style>body{font-family:sans-serif;padding:40px;max-width:700px;margin:0 auto;color:#111}h2{margin-bottom:12px}.line-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}.total-row{display:flex;justify-content:space-between;padding:14px;background:#f0f4ff;border-radius:8px;margin-top:10px;font-weight:bold;font-size:18px}@media print{body{padding:20px}}</style></head><body>${html}</body></html>`);
   w.document.close();
   w.print();
+}
+
+
+// ─── BRANDED PDF EXPORT ───
+function exportBrandedPDF(id) {
+  const q = getQuote(id);
+  if (!q) return;
+  const calc = calcQuote(q);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const W = 210; // A4 width mm
+  const NAVY  = [1, 22, 72];
+  const BLUE  = [39, 108, 233];
+  const WHITE = [255, 255, 255];
+  const MIST  = [240, 244, 253];
+  const MUTED = [120, 135, 160];
+  const LIGHT = [230, 236, 248];
+
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const dateStr = new Date(q.created_at).toLocaleDateString('en-AU', {day:'numeric',month:'long',year:'numeric'});
+  const quoteId = 'EST-' + q.id.slice(-6).toUpperCase();
+  let y = 0;
+
+  // ── HEADER BLOCK ──
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, W, 36, 'F');
+
+  // Logo text "Super" + "Sub" accent
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(...WHITE);
+  doc.text('Super', 14, 18);
+  const superW = doc.getTextWidth('Super');
+  doc.setTextColor(...BLUE);
+  doc.text('Sub', 14 + superW, 18);
+
+  // Tagline
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(180, 195, 220);
+  doc.text('BUILD SMARTER. LIVE BETTER.', 14, 24);
+
+  // Quote ID + date top right
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.setTextColor(180, 195, 220);
+  doc.text('ESTIMATE', W - 14, 13, { align: 'right' });
+  doc.setFontSize(12);
+  doc.setTextColor(...WHITE);
+  doc.text(quoteId, W - 14, 20, { align: 'right' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(180, 195, 220);
+  doc.text(dateStr, W - 14, 26, { align: 'right' });
+
+  // ── BLUE ACCENT BAR ──
+  doc.setFillColor(...BLUE);
+  doc.rect(0, 36, W, 2, 'F');
+  y = 38;
+
+  // ── CLIENT SECTION ──
+  doc.setFillColor(...MIST);
+  doc.rect(0, y, W, 32, 'F');
+
+  // Prepared for
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...MUTED);
+  doc.text('PREPARED FOR', 14, y + 8);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(...NAVY);
+  doc.text(q.client || 'Client', 14, y + 16);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...MUTED);
+  let clientY = y + 22;
+  if (q.address) { doc.text(q.address, 14, clientY); clientY += 5; }
+  if (q.email)   { doc.text(q.email, 14, clientY); }
+
+  // Right meta
+  const metaX = W - 14;
+  let mY = y + 9;
+  const metaItems = [
+    ['Prepared by', q.created_by || '—'],
+    ['Location',    (LOCATION_MULTIPLIERS[q.location||'metro']||{label:'Metro'}).label],
+    ['Floor Area',  (q.floor_area||0) + ' m²'],
+    ['Date',        dateStr],
+  ];
+  metaItems.forEach(([k,v]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...MUTED);
+    doc.text(k, metaX - 28, mY, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...NAVY);
+    doc.text(v, metaX, mY, { align: 'right' });
+    mY += 5.5;
+  });
+
+  y += 34;
+
+  // Border under client section
+  doc.setDrawColor(...LIGHT);
+  doc.setLineWidth(0.3);
+  doc.line(0, y, W, y);
+  y += 8;
+
+  // ── SECTION HELPER ──
+  function sectionHeading(title) {
+    // blue left bar
+    doc.setFillColor(...BLUE);
+    doc.rect(14, y - 1, 2, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...MUTED);
+    doc.text(title.toUpperCase(), 19, y + 5);
+    // underline
+    doc.setDrawColor(...LIGHT);
+    doc.setLineWidth(0.2);
+    doc.line(14, y + 7, W - 14, y + 7);
+    y += 11;
+  }
+
+  function tableHeader() {
+    doc.setFillColor(248, 250, 252);
+    doc.rect(14, y, W - 28, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...MUTED);
+    doc.text('ITEM', 17, y + 5);
+    doc.text('CALCULATION', 100, y + 5);
+    doc.text('AMOUNT', W - 17, y + 5, { align: 'right' });
+    doc.setDrawColor(...LIGHT);
+    doc.setLineWidth(0.2);
+    doc.line(14, y + 7, W - 14, y + 7);
+    y += 9;
+  }
+
+  function tableRow(name, detail, amount, shade) {
+    if (shade) { doc.setFillColor(252, 253, 255); doc.rect(14, y - 1, W - 28, 8, 'F'); }
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...NAVY);
+    doc.text(name, 17, y + 4);
+    doc.setFontSize(7);
+    doc.setTextColor(...MUTED);
+    doc.text(detail, 100, y + 4);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...NAVY);
+    doc.text(fmt(amount), W - 17, y + 4, { align: 'right' });
+    doc.setDrawColor(...LIGHT);
+    doc.setLineWidth(0.15);
+    doc.line(14, y + 7, W - 14, y + 7);
+    y += 8;
+  }
+
+  function subtotalRow(label, amount) {
+    doc.setFillColor(...MIST);
+    doc.rect(14, y, W - 28, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...MUTED);
+    doc.text(label, W - 55, y + 5.5, { align: 'right' });
+    doc.setTextColor(...NAVY);
+    doc.text(fmt(amount), W - 17, y + 5.5, { align: 'right' });
+    y += 10;
+  }
+
+  // ── BUILD COSTS ──
+  sectionHeading('Build Costs');
+  tableHeader();
+  const buildLines = calc.lines.filter(l => l.type !== 'fixed');
+  buildLines.forEach((l, i) => tableRow(l.name, l.detail, l.amount, i % 2 === 1));
+  y += 1;
+  subtotalRow('Build Subtotal', calc.subtotal);
+  y += 4;
+
+  // ── FIXED COSTS ──
+  const fixedLines = calc.lines.filter(l => l.type === 'fixed');
+  if (fixedLines.length > 0) {
+    sectionHeading('Fixed Costs');
+    tableHeader();
+    fixedLines.forEach((l, i) => tableRow(l.name, 'Fixed cost', l.amount, i % 2 === 1));
+    y += 1;
+    subtotalRow('Fixed Subtotal', calc.fixedTotal);
+    y += 4;
+  }
+
+  // ── TOTAL BOX ──
+  doc.setFillColor(...NAVY);
+  doc.roundedRect(14, y, W - 28, 18, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(180, 195, 220);
+  doc.text('TOTAL ESTIMATE (INC. ALL COSTS)', 20, y + 7);
+  doc.setFontSize(16);
+  doc.setTextColor(...WHITE);
+  doc.text(fmt(calc.total), W - 20, y + 12, { align: 'right' });
+  y += 24;
+
+  // ── NOTES ──
+  if (q.notes) {
+    doc.setFillColor(...MIST);
+    doc.rect(14, y, W - 28, 16, 'F');
+    doc.setFillColor(...BLUE);
+    doc.rect(14, y, 3, 16, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...MUTED);
+    doc.text('NOTES', 20, y + 6);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...NAVY);
+    const noteLines = doc.splitTextToSize(q.notes, W - 42);
+    doc.text(noteLines, 20, y + 12);
+    y += 20;
+  }
+
+  // ── DISCLAIMER ──
+  y += 2;
+  doc.setFillColor(248, 249, 252);
+  doc.setDrawColor(...LIGHT);
+  doc.setLineWidth(0.2);
+  doc.roundedRect(14, y, W - 28, 14, 2, 2, 'FD');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...MUTED);
+  const disclaimer = 'This estimate is prepared based on assumed industry rates and the specifications provided. All figures are indicative only and subject to change following site inspection, detailed scope confirmation, and final material and labour pricing. SuperSub accepts no liability for variations between this estimate and final contract pricing.';
+  const dLines = doc.splitTextToSize(disclaimer, W - 36);
+  doc.text(dLines, 17, y + 5);
+  y += 18;
+
+  // ── FOOTER ──
+  const footerY = 282;
+  doc.setFillColor(...NAVY);
+  doc.rect(0, footerY, W, 15, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...WHITE);
+  doc.text('SuperSub', 14, footerY + 6);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 195, 220);
+  doc.text(' · supersub.co.nz · New Zealand's Modern Home Solution', 14 + doc.getTextWidth('SuperSub'), footerY + 6);
+  doc.setFontSize(7);
+  doc.text('Estimate ' + quoteId + '  ·  Generated ' + dateStr, W - 14, footerY + 6, { align: 'right' });
+
+  // Save
+  const filename = `SuperSub-Quote-${(q.client||'Client').replace(/\s+/g,'-')}-${quoteId}.pdf`;
+  doc.save(filename);
+  showToast('PDF downloaded ✓', 'success');
 }
 
 // ─── TOAST ───
